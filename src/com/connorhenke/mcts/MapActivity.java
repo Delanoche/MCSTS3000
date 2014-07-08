@@ -1,5 +1,7 @@
 package com.connorhenke.mcts;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -26,8 +28,7 @@ public class MapActivity extends Activity {
 	
 	private GoogleMap map;
 	private String route;
-//	private static Timer timer;
-//	private static Handler handler;
+	private List<Bus> vehicles;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,28 +40,9 @@ public class MapActivity extends Activity {
 		new VehiclesRequester(route).execute();
 		
 		map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(43.038940, -87.906448), 12.0f));
-
-//		timer = new Timer();
-
-//		handler = new Handler() {
-//		    public void handleMessage(Message msg) {
-//		        new VehiclesRequester(route).execute();
-//		    }
-//		};
-
-//		startTimer();
+		vehicles = new ArrayList<Bus>();
 		
 	}
-
-//	protected static void startTimer() {
-//	    timer.scheduleAtFixedRate(new TimerTask() {
-//	        public void run() {
-//	            handler.obtainMessage(1).sendToTarget();
-//
-//	        }
-//	    }, 0, 200);
-//	};
-
 
 	class VehiclesRequester extends AsyncTask<String, String, Document> {
 		
@@ -91,7 +73,8 @@ public class MapActivity extends Activity {
 				Node lon = lat.getNextSibling();
 				float longitude = Float.parseFloat(lon.getTextContent());
 				Node hdg = lon.getNextSibling();
-				float heading = Integer.parseInt(hdg.getTextContent());
+				int heading = Integer.parseInt(hdg.getTextContent());
+				vehicles.add(new Bus(new LatLng(latitude, longitude), heading, vid.getTextContent()));
 				map.addMarker(new MarkerOptions()
 					.flat(true)
 					.position(new LatLng(latitude, longitude))

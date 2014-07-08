@@ -26,6 +26,7 @@ public class Constants {
 	
 	public static final String API_KEY = "wHRcbttmWX6FFh9t25u8Ea6K9";
 	public static final String API = "http://realtime.ridemcts.com/bustime/api/v1/";
+	public static final String GOOGLE_DIRECTIONS = "maps.google.com/maps/api/directions/json";
 	public static final String ROUTES = "getroutes";
 	public static final String VEHICLES = "getvehicles";
 	

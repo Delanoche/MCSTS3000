@@ -43,6 +43,7 @@ public class RoutesActivity extends Activity {
 				intent.putExtra("NUMBER", number.getText());
 				intent.putExtra("NAME", name.getText());
 	        	startActivity(intent);
+				overridePendingTransition(R.anim.lefttoright, R.anim.righttoleft);
 				
 			}
     	});
