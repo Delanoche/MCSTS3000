@@ -27,11 +27,15 @@ public class Constants {
 	public static final String ROUTES = "getroutes";
 	public static final String VEHICLES = "getvehicles";
 	public static final String STOPS = "getstops";
+	public static final String DIRECTIONS = "getdirections";
 	
-	public static Document getVehicles(String route) {
+	public static Document getVehicles(String route) throws RouteException {
 		String params = "?key=" + API_KEY + "&rt=" + route;
 		HttpResponse response = httpGet(API + VEHICLES + params);
 		Document doc = null;
+		if(response == null) {
+			throw new RouteException("Could not get route");
+		}
 		if(response.getStatusLine().getStatusCode() == 200) {
 			String body = "";
 			try {
@@ -84,6 +88,34 @@ public class Constants {
 		String params = "?key=" + API_KEY;
 		HttpResponse response = httpGet(API + ROUTES + params);
 		Document doc = null;
+		if(response.getStatusLine().getStatusCode() == 200) {
+			String body = "";
+			try {
+				BufferedReader content = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+				int val;
+				while((val = content.read()) !=  -1) {
+					char character = (char)val;
+					if(!Character.isWhitespace(character))
+						body += ((char)val);
+				}
+				doc = loadXml(body);
+			} catch(IOException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		return doc;
+	}
+
+	public static Document getDirections(String route) throws RouteException {
+		String params = "?key=" + API_KEY + "&rt=" + route;
+		HttpResponse response = httpGet(API + DIRECTIONS + params);
+		Document doc = null;
+		if(response == null) {
+			throw new RouteException("Could not get route");
+		}
 		if(response.getStatusLine().getStatusCode() == 200) {
 			String body = "";
 			try {
