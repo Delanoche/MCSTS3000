@@ -3,9 +3,8 @@ package com.connorhenke.mcts;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -24,8 +23,6 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -44,7 +41,7 @@ public class MapActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.map);
-
+		
 		route = getIntent().getStringExtra("NUMBER");
 		setTitle(route);
 		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
@@ -53,14 +50,14 @@ public class MapActivity extends Activity {
 		map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(43.038940, -87.906448), 12.0f));
 		vehicles = new ArrayList<Bus>();
 		stops = new ArrayList<Stop>();
-		directions = new ArrayList<String>();
-
-		new DirectionsRequester(route).execute();
-//		new StopsRequester(route).execute();
+		
+		setTitle("MCTS3000 - " + route);
+		
+		new StopsRequester(route).execute();
 
 	}
 
-	class StopsRequester extends AsyncTask<String, String, Document> {
+	class StopsRequester extends AsyncTask<String, String, JSONObject> {
 		String route;
 
 		public StopsRequester(String route) {
@@ -68,37 +65,34 @@ public class MapActivity extends Activity {
 		}
 
 		@Override
-		protected Document doInBackground(String... params) {
-			Document stops = Constants.getStops(route, "EAST");
+		protected JSONObject doInBackground(String... params) {
+			JSONObject stops = Constants.getStops(route, "SOUTH");
 			Log.i(WIFI_SERVICE, "Request completed");
 			return stops;
 		}
 
 		@Override
-		protected void onPostExecute(Document result) {
-			Log.d("response", result.toString());
-			Element response = (Element) result.getElementsByTagName("bustime-response").item(0);
-			NodeList stopList = response.getChildNodes();
-			for(int i = 0; i < stopList.getLength(); i++) {
-				Element stop = (Element) stopList.item(i);
-				String seq = stop.getAttribute("seq");
-				String type = stop.getAttribute("typ");
-				String stopId = stop.getAttribute("stpid");
-				Log.d("STOP", stopId);
-				String stopName = stop.getAttribute("stpnm");
-				Log.d("STOP", stopName);
-				String latitude = stop.getAttribute("lat");
-				String longitude = stop.getAttribute("lon");
-				String pointDistance = stop.getAttribute("pdist");
-				Log.d("seq", seq);
-				Stop stopObj = new Stop(seq, type, latitude, longitude, stopId, stopName, pointDistance);
-				stops.add(stopObj);
-				map.addMarker(new MarkerOptions()
-				.flat(true)
-				.position(new LatLng(Double.parseDouble(latitude), Double.parseDouble(longitude)))
-				.icon(BitmapDescriptorFactory.fromResource(R.drawable.dot))
-				.title(stopId != null ? stopId : ""));
+		protected void onPostExecute(JSONObject result) {
+			try {
+				JSONArray stopList = result.getJSONObject("bustime-response").getJSONArray("stops");
+				for(int i = 0; i < stopList.length(); i++) {
+					JSONObject stop = (JSONObject)stopList.get(i);				
+					String stopId = stop.getString("stpid");
+					String stopName = stop.getString("stpnm");
+					String latitude = stop.getString("lat");
+					String longitude = stop.getString("lon");
+					Stop stopObj = new Stop("", "", latitude, longitude, stopId, stopName, "");
+					stops.add(stopObj);
+					map.addMarker(new MarkerOptions()
+					.flat(true)
+					.position(new LatLng(Double.parseDouble(latitude), Double.parseDouble(longitude)))
+					.icon(BitmapDescriptorFactory.fromResource(R.drawable.circledot))
+					.title(stopId != null ? stopId : ""));
+				}
+			}catch(Exception e) {
+				e.printStackTrace();
 			}
+			
 		}
 
 	}
