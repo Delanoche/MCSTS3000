@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.w3c.dom.Document;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -31,7 +32,8 @@ public class MapActivity extends Activity {
 	private String route;
 	private List<String> directions;
 	private List<Bus> vehicles;
-	private List<Stop> stops;
+	private List<Stop> firstSet;
+	private List<Stop> secondSet;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,26 +47,56 @@ public class MapActivity extends Activity {
 
 		map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(43.038940, -87.906448), 12.0f));
 		vehicles = new ArrayList<Bus>();
-		stops = new ArrayList<Stop>();
+		firstSet = new ArrayList<Stop>();
+		secondSet = new ArrayList<Stop>();
+		directions = new ArrayList<String>();
 		
 		setTitle("MCTS3000 - " + route);
 		
-		new StopsRequester(route).execute();
+		new DirectionsRequester(route).execute();
 
+	}
+	
+	private void displayBuses() {
+		for(Bus bus : vehicles) {
+					map.addMarker(new MarkerOptions()
+					.flat(true)
+					.position(bus.getLocation())
+					.rotation(bus.getHeading())
+					.icon(BitmapDescriptorFactory.fromResource(R.drawable.arrow))
+					.title(bus.getVid()));
+		}
+	}
+	
+	private void displayStops(List<Stop> stopList) {
+		map.clear();
+		displayBuses();
+		for(Stop stop : stopList) {
+					map.addMarker(new MarkerOptions()
+					.flat(true)
+					.position(new LatLng(Double.parseDouble(stop.getLatitude()), Double.parseDouble(stop.getLongitude())))
+					.icon(BitmapDescriptorFactory.fromResource(R.drawable.circledot))
+					.title(stop.getStopId() != null ? stop.getStopId() : ""));
+		}
+		
 	}
 
 	class StopsRequester extends AsyncTask<String, String, JSONObject> {
 		String route;
+		String dir;
+		List<Stop> list;
 
-		public StopsRequester(String route) {
+		public StopsRequester(String route, String dir, List<Stop> list) {
 			this.route = route;
+			this.dir = dir;
+			this.list = list;
 		}
 
 		@Override
 		protected JSONObject doInBackground(String... params) {
-			JSONObject stops = Constants.getStops(route, "SOUTH");
+			JSONObject jsonStops = Constants.getStops(route, dir);
 			Log.i(WIFI_SERVICE, "Request completed");
-			return stops;
+			return jsonStops;
 		}
 
 		@Override
@@ -78,12 +110,7 @@ public class MapActivity extends Activity {
 					String latitude = stop.getString("lat");
 					String longitude = stop.getString("lon");
 					Stop stopObj = new Stop("", "", latitude, longitude, stopId, stopName, "");
-					stops.add(stopObj);
-					map.addMarker(new MarkerOptions()
-					.flat(true)
-					.position(new LatLng(Double.parseDouble(latitude), Double.parseDouble(longitude)))
-					.icon(BitmapDescriptorFactory.fromResource(R.drawable.circledot))
-					.title(stopId != null ? stopId : ""));
+					list.add(stopObj);
 				}
 			}catch(Exception e) {
 				e.printStackTrace();
@@ -139,6 +166,7 @@ public class MapActivity extends Activity {
 				}catch(Exception e) {
 					e.printStackTrace();
 				}
+				displayBuses();
 			} else {
 				Toast.makeText(getApplicationContext(), exception.getMessage(), Toast.LENGTH_SHORT).show();
 				MapActivity.this.finish();
@@ -164,7 +192,15 @@ public class MapActivity extends Activity {
 	            builder.setTitle(R.string.show_stops)
 	                   .setItems(options, new DialogInterface.OnClickListener() {
 	                       public void onClick(DialogInterface dialog, int which) {
-//	                    	   dialog.dismiss();
+	                    	   switch(which) {
+	                    	   case 0:
+	                    		   displayStops(firstSet);
+	                    		   break;
+	                    	   case 1:
+	                    		   displayStops(secondSet);
+	                    		   break;
+	                    	   }
+	                    	   dialog.dismiss();
 	                       }
 	            });
 	            Dialog dialog = builder.create();
@@ -207,6 +243,55 @@ public class MapActivity extends Activity {
 					for(int i = 0; i < directionList.length(); i++) {
 						JSONObject direction = (JSONObject)directionList.get(i);
 						String dir = direction.getString("dir");
+						directions.add(dir);
+					}
+				}catch(Exception e) {
+					e.printStackTrace();
+				}
+				new StopsRequester(route, directions.get(0), firstSet).execute();
+				new StopsRequester(route, directions.get(1), secondSet).execute();
+			} else {
+				Toast.makeText(getApplicationContext(), exception.getMessage(), Toast.LENGTH_SHORT).show();
+				MapActivity.this.finish();
+			}
+		}
+
+	}
+
+	class PredictionsRequester extends AsyncTask<String, String, JSONObject> {
+
+		String stop;
+		String route;
+		Exception exception;
+
+		public PredictionsRequester(String stop, String route) {
+			this.stop = stop;
+			this.route = route;
+		}
+
+		@Override
+		protected JSONObject doInBackground(String... params) {
+			JSONObject directions;
+			try {
+				directions = Constants.getDirections(route);
+			} catch (RouteException e) {
+				exception = e;
+				directions = null;
+			}
+			Log.i(WIFI_SERVICE, "Request completed");
+			return directions;
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			if(exception == null) {
+				try {
+					JSONArray directionList = result.getJSONObject("bustime-response").getJSONArray("directions");
+					directions.clear();
+					for(int i = 0; i < directionList.length(); i++) {
+						JSONObject direction = (JSONObject)directionList.get(i);
+						String dir = direction.getString("dir");
+						Log.d("DIR", dir);
 						directions.add(dir);
 					}
 				}catch(Exception e) {
