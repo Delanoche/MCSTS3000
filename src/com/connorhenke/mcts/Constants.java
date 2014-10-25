@@ -2,10 +2,8 @@ package com.connorhenke.mcts;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -15,19 +13,16 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.util.Log;
 
 public class Constants {
 	
 	public static final String API_KEY = "wHRcbttmWX6FFh9t25u8Ea6K9";
-	public static final String API = "http://realtime.ridemcts.com/bustime/api/v1/";
+	public static final String API = "http://realtime.ridemcts.com/bustime/api/v2/";
 	public static final String GOOGLE_DIRECTIONS = "maps.google.com/maps/api/directions/json";
 	public static final String ROUTES = "getroutes";
 	public static final String VEHICLES = "getvehicles";
@@ -58,11 +53,11 @@ public class Constants {
 		return doc;
 	}
 	
-	public static Document getStops(String route, String dir) {
-		String params = "?key=" + API_KEY + "&rt=" + route + "&dir=" + dir;
+	public static JSONObject getStops(String route, String dir) {
+		String params = "?key=" + API_KEY + "&rt=" + route + "&dir=" + dir + "&format=json";
 		Log.d("request", API + STOPS + params);
 		HttpResponse response = httpGet(API + STOPS + params);
-		Document doc = null;
+		JSONObject j = null;
 		if(response.getStatusLine().getStatusCode() == 200) {
 			String body = "";
 			try {
@@ -74,7 +69,7 @@ public class Constants {
 						body += ((char)val);
 				}
 				Log.d("response", body);
-				doc = loadXml(body);
+				j = new JSONObject(body);
 			} catch(IOException e) {
 				e.printStackTrace();
 			} catch (Exception e) {
@@ -82,7 +77,7 @@ public class Constants {
 			}
 		}
 
-		return doc;
+		return j;
 	}
 	
 	public static Document getRoutes() {
