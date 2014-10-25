@@ -29,10 +29,10 @@ public class Constants {
 	public static final String STOPS = "getstops";
 	public static final String DIRECTIONS = "getdirections";
 	
-	public static Document getVehicles(String route) throws RouteException {
-		String params = "?key=" + API_KEY + "&rt=" + route;
+	public static JSONObject getVehicles(String route) throws RouteException {
+		String params = "?key=" + API_KEY + "&rt=" + route + "&format=json";
 		HttpResponse response = httpGet(API + VEHICLES + params);
-		Document doc = null;
+		JSONObject jsonObj = null;
 		if(response == null) {
 			throw new RouteException("Could not get route");
 		}
@@ -46,7 +46,7 @@ public class Constants {
 					if(!Character.isWhitespace(character))
 						body += ((char)val);
 				}
-				doc = loadXml(body);
+				jsonObj = new JSONObject(body);
 			} catch(IOException e) {
 				e.printStackTrace();
 			} catch (Exception e) {
@@ -54,14 +54,14 @@ public class Constants {
 			}
 		}
 
-		return doc;
+		return jsonObj;
 	}
 	
 	public static JSONObject getStops(String route, String dir) {
 		String params = "?key=" + API_KEY + "&rt=" + route + "&dir=" + dir + "&format=json";
 		Log.d("request", API + STOPS + params);
 		HttpResponse response = httpGet(API + STOPS + params);
-		JSONObject j = null;
+		JSONObject jsonObj = null;
 		if(response.getStatusLine().getStatusCode() == 200) {
 			String body = "";
 			try {
@@ -73,7 +73,7 @@ public class Constants {
 						body += ((char)val);
 				}
 				Log.d("response", body);
-				j = new JSONObject(body);
+				jsonObj = new JSONObject(body);
 			} catch(IOException e) {
 				e.printStackTrace();
 			} catch (Exception e) {
@@ -81,13 +81,13 @@ public class Constants {
 			}
 		}
 
-		return j;
+		return jsonObj;
 	}
 	
-	public static Document getRoutes() {
-		String params = "?key=" + API_KEY;
+	public static JSONObject getRoutes() {
+		String params = "?key=" + API_KEY + "&format=json";
 		HttpResponse response = httpGet(API + ROUTES + params);
-		Document doc = null;
+		JSONObject jsonObj = null;
 		if(response.getStatusLine().getStatusCode() == 200) {
 			String body = "";
 			try {
@@ -98,7 +98,7 @@ public class Constants {
 					if(!Character.isWhitespace(character))
 						body += ((char)val);
 				}
-				doc = loadXml(body);
+				jsonObj = new JSONObject(body);
 			} catch(IOException e) {
 				e.printStackTrace();
 			} catch (Exception e) {
@@ -106,13 +106,13 @@ public class Constants {
 			}
 		}
 
-		return doc;
+		return jsonObj;
 	}
 
-	public static Document getDirections(String route) throws RouteException {
-		String params = "?key=" + API_KEY + "&rt=" + route;
+	public static JSONObject getDirections(String route) throws RouteException {
+		String params = "?key=" + API_KEY + "&rt=" + route + "&format=json";
 		HttpResponse response = httpGet(API + DIRECTIONS + params);
-		Document doc = null;
+		JSONObject jsonObj = null;
 		if(response == null) {
 			throw new RouteException("Could not get route");
 		}
@@ -126,7 +126,7 @@ public class Constants {
 					if(!Character.isWhitespace(character))
 						body += ((char)val);
 				}
-				doc = loadXml(body);
+				jsonObj = new JSONObject(body);
 			} catch(IOException e) {
 				e.printStackTrace();
 			} catch (Exception e) {
@@ -134,7 +134,7 @@ public class Constants {
 			}
 		}
 
-		return doc;
+		return jsonObj;
 	}
 	
 	public static Document loadXml(String xml) throws Exception {
