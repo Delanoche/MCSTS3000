@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.inputmethodservice.Keyboard.Row;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Space;
 import android.widget.TextView;
 
 public class RoutesAdapter extends ArrayAdapter<Route> {
@@ -45,13 +47,15 @@ public class RoutesAdapter extends ArrayAdapter<Route> {
 		number.setText(routes.get(position).getNumber());
 		name.setText(routes.get(position).getName());
 		
-		LinearLayout routesList = (LinearLayout) view.findViewById(R.id.routeslist);
-//		routesList.setBackgroundColor(parseColor(routes.get(position).getColor()));
+		TextView color = (TextView) view.findViewById(R.id.color_block);
+		int bg = Color.parseColor(routes.get(position).getColor());
+		Log.d("COLOR", "" + bg);
+		color.setBackgroundColor(bg);
 		
 		return view;
 	}
 	
 	private static int parseColor(String color) {
-		return Color.rgb(Integer.valueOf(color.substring(1,3),16), Integer.valueOf(color.substring(3,5),16), Integer.valueOf(color.substring(5,7),16));
+		return Color.rgb(Integer.valueOf(color.substring(1,3),16).intValue(), Integer.valueOf(color.substring(3,5),16).intValue(), Integer.valueOf(color.substring(5,7),16).intValue());
 	}
 }

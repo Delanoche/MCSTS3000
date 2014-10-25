@@ -22,6 +22,8 @@ import org.xml.sax.InputSource;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.util.Log;
+
 public class Constants {
 	
 	public static final String API_KEY = "wHRcbttmWX6FFh9t25u8Ea6K9";
@@ -29,6 +31,7 @@ public class Constants {
 	public static final String GOOGLE_DIRECTIONS = "maps.google.com/maps/api/directions/json";
 	public static final String ROUTES = "getroutes";
 	public static final String VEHICLES = "getvehicles";
+	public static final String STOPS = "getstops";
 	
 	public static Document getVehicles(String route) {
 		String params = "?key=" + API_KEY + "&rt=" + route;
@@ -44,6 +47,33 @@ public class Constants {
 					if(!Character.isWhitespace(character))
 						body += ((char)val);
 				}
+				doc = loadXml(body);
+			} catch(IOException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		return doc;
+	}
+	
+	public static Document getStops(String route, String dir) {
+		String params = "?key=" + API_KEY + "&rt=" + route + "&dir=" + dir;
+		Log.d("request", API + STOPS + params);
+		HttpResponse response = httpGet(API + STOPS + params);
+		Document doc = null;
+		if(response.getStatusLine().getStatusCode() == 200) {
+			String body = "";
+			try {
+				BufferedReader content = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+				int val;
+				while((val = content.read()) !=  -1) {
+					char character = (char)val;
+					if(!Character.isWhitespace(character))
+						body += ((char)val);
+				}
+				Log.d("response", body);
 				doc = loadXml(body);
 			} catch(IOException e) {
 				e.printStackTrace();
