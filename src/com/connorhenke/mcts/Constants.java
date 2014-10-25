@@ -56,6 +56,33 @@ public class Constants {
 
 		return doc;
 	}
+
+	public static JSONObject getPredictions(String stop, String route) {
+		String params = "?key=" + API_KEY + "&rt=" + route + "&stpid=" + stop + "&format=json";
+		Log.d("request", API + STOPS + params);
+		HttpResponse response = httpGet(API + STOPS + params);
+		JSONObject j = null;
+		if(response.getStatusLine().getStatusCode() == 200) {
+			String body = "";
+			try {
+				BufferedReader content = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+				int val;
+				while((val = content.read()) !=  -1) {
+					char character = (char)val;
+					if(!Character.isWhitespace(character))
+						body += ((char)val);
+				}
+				Log.d("response", body);
+				j = new JSONObject(body);
+			} catch(IOException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		return j;
+	}
 	
 	public static JSONObject getStops(String route, String dir) {
 		String params = "?key=" + API_KEY + "&rt=" + route + "&dir=" + dir + "&format=json";
