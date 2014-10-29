@@ -3,19 +3,15 @@ package com.connorhenke.mcts;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
@@ -56,28 +52,31 @@ public class RoutesActivity extends Activity {
 		new RoutesRequester().execute();
 	}
 	
-	class RoutesRequester extends AsyncTask<String, String, Document> {
+	class RoutesRequester extends AsyncTask<String, String, JSONObject> {
 
 		@Override
-		protected Document doInBackground(String... params) {
-			Document routes = Constants.getRoutes();
+		protected JSONObject doInBackground(String... params) {
+			JSONObject routes = Constants.getRoutes();
 			Log.i(WIFI_SERVICE, "Request completed");
 			return routes;
 		}
 		
 		@Override
-	    protected void onPostExecute(Document result) {
-			Element response = (Element) result.getElementsByTagName("bustime-response").item(0);
-			NodeList routeList = response.getChildNodes();
-			routes.clear();
-			for(int i = 0; i < routeList.getLength(); i++) {
-				Element route = (Element) routeList.item(i);
-				Node rt = route.getFirstChild();
-				Node rtnm = rt.getNextSibling();
-				Node rtclr = rtnm.getNextSibling();
-				routes.add(new Route(rt.getTextContent(), rtnm.getTextContent(), rtclr.getTextContent()));
+	    protected void onPostExecute(JSONObject result) {
+			try {
+				JSONArray routeList = result.getJSONObject("bustime-response").getJSONArray("routes");
+				routes.clear();
+				for(int i = 0; i < routeList.length(); i++) {
+					JSONObject route = (JSONObject)routeList.get(i);
+					String rt = route.getString("rt");
+					String rtnm = route.getString("rtnm");
+					String rtclr = route.getString("rtclr");
+					routes.add(new Route(rt, rtnm, rtclr));
+				}
+				adapter.notifyDataSetChanged();
+			}catch(Exception e) {
+				
 			}
-			adapter.notifyDataSetChanged();
 		}
 		
 	}

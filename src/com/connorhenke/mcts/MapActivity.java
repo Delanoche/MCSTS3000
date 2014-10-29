@@ -7,9 +7,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -128,7 +125,7 @@ public class MapActivity extends Activity {
 
 	}
 
-	class VehiclesRequester extends AsyncTask<String, String, Document> {
+	class VehiclesRequester extends AsyncTask<String, String, JSONObject> {
 
 		String route;
 		Exception exception;
@@ -138,8 +135,8 @@ public class MapActivity extends Activity {
 		}
 
 		@Override
-		protected Document doInBackground(String... params) {
-			Document vehicles;
+		protected JSONObject doInBackground(String... params) {
+			JSONObject vehicles;
 			try {
 				vehicles = Constants.getVehicles(route);
 			} catch (RouteException e) {
@@ -151,22 +148,28 @@ public class MapActivity extends Activity {
 		}
 
 		@Override
-		protected void onPostExecute(Document result) {
+		protected void onPostExecute(JSONObject result) {
 			if(exception == null) {
-				Element response = (Element) result.getElementsByTagName("bustime-response").item(0);
-				NodeList vehicleList = response.getChildNodes();
-				map.clear();
-				for(int i = 0; i < vehicleList.getLength(); i++) {
-					Element vehicle = (Element) vehicleList.item(i);
-					Node vid = vehicle.getFirstChild();
-					Node time = vid.getNextSibling();
-					Node lat = time.getNextSibling();
-					float latitude = Float.parseFloat(lat.getTextContent());
-					Node lon = lat.getNextSibling();
-					float longitude = Float.parseFloat(lon.getTextContent());
-					Node hdg = lon.getNextSibling();
-					int heading = Integer.parseInt(hdg.getTextContent());
-					vehicles.add(new Bus(new LatLng(latitude, longitude), heading, vid.getTextContent()));
+				try {
+					JSONArray vehicleList = result.getJSONObject("bustime-response").getJSONArray("vehicle");
+					map.clear();
+					for(int i = 0; i < vehicleList.length(); i++) {
+						JSONObject vehicle = (JSONObject)vehicleList.get(i);
+						String vid = vehicle.getString("vid");
+						String time = vehicle.getString("tmstmp");
+						float latitude = Float.parseFloat(vehicle.getString("lat"));
+						float longitude = Float.parseFloat(vehicle.getString("lon"));
+						int heading = Integer.parseInt(vehicle.getString("hdg"));
+						vehicles.add(new Bus(new LatLng(latitude, longitude), heading, vid));
+						map.addMarker(new MarkerOptions()
+						.flat(true)
+						.position(new LatLng(latitude, longitude))
+						.rotation(heading)
+						.icon(BitmapDescriptorFactory.fromResource(R.drawable.arrow))
+						.title(vid));
+					}
+				}catch(Exception e) {
+					e.printStackTrace();
 				}
 				displayBuses();
 			} else {
@@ -214,7 +217,7 @@ public class MapActivity extends Activity {
 	    }
 	}
 
-	class DirectionsRequester extends AsyncTask<String, String, Document> {
+	class DirectionsRequester extends AsyncTask<String, String, JSONObject> {
 
 		String route;
 		Exception exception;
@@ -224,8 +227,8 @@ public class MapActivity extends Activity {
 		}
 
 		@Override
-		protected Document doInBackground(String... params) {
-			Document directions;
+		protected JSONObject doInBackground(String... params) {
+			JSONObject directions;
 			try {
 				directions = Constants.getDirections(route);
 			} catch (RouteException e) {
@@ -237,16 +240,18 @@ public class MapActivity extends Activity {
 		}
 
 		@Override
-		protected void onPostExecute(Document result) {
+		protected void onPostExecute(JSONObject result) {
 			if(exception == null) {
-				Element response = (Element) result.getElementsByTagName("bustime-response").item(0);
-				NodeList directionList = response.getChildNodes();
-				directions.clear();
-				for(int i = 0; i < directionList.getLength(); i++) {
-					Element direction = (Element) directionList.item(i);
-					String dir = direction.getTextContent();
-					Log.d("DIR", dir);
-					directions.add(dir);
+				try {
+					JSONArray directionList = result.getJSONObject("bustime-response").getJSONArray("directions");
+					directions.clear();
+					for(int i = 0; i < directionList.length(); i++) {
+						JSONObject direction = (JSONObject)directionList.get(i);
+						String dir = direction.getString("dir");
+						directions.add(dir);
+					}
+				}catch(Exception e) {
+					e.printStackTrace();
 				}
 				new StopsRequester(route, directions.get(0), firstSet).execute();
 				new StopsRequester(route, directions.get(1), secondSet).execute();
