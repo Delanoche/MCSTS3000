@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -46,7 +47,6 @@ public class MapActivity extends Activity {
 		route = getIntent().getStringExtra("NUMBER");
 		setTitle(route);
 		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-		new VehiclesRequester(route).execute();
 
 		map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(43.038940, -87.906448), 12.0f));
 		vehicles = new ArrayList<Bus>();
@@ -56,8 +56,13 @@ public class MapActivity extends Activity {
 		
 		setTitle("MCTS3000 - " + route);
 		
+		refresh();
+	}
+	
+	private void refresh() {
+		new VehiclesRequester(route).execute();
 		new DirectionsRequester(route).execute();
-
+		
 	}
 	
 	private void displayBuses() {
@@ -253,7 +258,7 @@ public class MapActivity extends Activity {
 
 	}
 
-	class PredictionsRequester extends AsyncTask<String, String, Document> {
+	class PredictionsRequester extends AsyncTask<String, String, JSONObject> {
 
 		String stop;
 		String route;
@@ -265,29 +270,20 @@ public class MapActivity extends Activity {
 		}
 
 		@Override
-		protected Document doInBackground(String... params) {
-			Document directions;
-			try {
-				directions = Constants.getDirections(route);
-			} catch (RouteException e) {
-				exception = e;
-				directions = null;
-			}
+		protected JSONObject doInBackground(String... params) {
+			JSONObject prediction;
+			prediction = Constants.getPredictions(stop, route);
 			Log.i(WIFI_SERVICE, "Request completed");
-			return directions;
+			return prediction;
 		}
 
 		@Override
-		protected void onPostExecute(Document result) {
+		protected void onPostExecute(JSONObject result) {
 			if(exception == null) {
-				Element response = (Element) result.getElementsByTagName("bustime-response").item(0);
-				NodeList directionList = response.getChildNodes();
-				directions.clear();
-				for(int i = 0; i < directionList.getLength(); i++) {
-					Element direction = (Element) directionList.item(i);
-					String dir = direction.getTextContent();
-					Log.d("DIR", dir);
-					directions.add(dir);
+				try {
+					JSONObject response = result.getJSONObject("bustime-response");
+				} catch (JSONException e) {
+					e.printStackTrace();
 				}
 			} else {
 				Toast.makeText(getApplicationContext(), exception.getMessage(), Toast.LENGTH_SHORT).show();

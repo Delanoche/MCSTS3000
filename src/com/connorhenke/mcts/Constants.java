@@ -28,6 +28,7 @@ public class Constants {
 	public static final String VEHICLES = "getvehicles";
 	public static final String STOPS = "getstops";
 	public static final String DIRECTIONS = "getdirections";
+	public static final String PREDICTIONS = "getpredictions";
 	
 	public static Document getVehicles(String route) throws RouteException {
 		String params = "?key=" + API_KEY + "&rt=" + route;
@@ -59,7 +60,7 @@ public class Constants {
 
 	public static JSONObject getPredictions(String stop, String route) {
 		String params = "?key=" + API_KEY + "&rt=" + route + "&stpid=" + stop + "&format=json";
-		Log.d("request", API + STOPS + params);
+		Log.d("request", API + PREDICTIONS + params);
 		HttpResponse response = httpGet(API + STOPS + params);
 		JSONObject j = null;
 		if(response.getStatusLine().getStatusCode() == 200) {
