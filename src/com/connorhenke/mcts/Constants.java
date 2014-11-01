@@ -28,6 +28,7 @@ public class Constants {
 	public static final String VEHICLES = "getvehicles";
 	public static final String STOPS = "getstops";
 	public static final String DIRECTIONS = "getdirections";
+	public static final String PATTERNS = "getpatterns";
 	
 	public static JSONObject getVehicles(String route) throws RouteException {
 		String params = "?key=" + API_KEY + "&rt=" + route + "&format=json";
@@ -139,6 +140,34 @@ public class Constants {
 	public static JSONObject getDirections(String route) throws RouteException {
 		String params = "?key=" + API_KEY + "&rt=" + route + "&format=json";
 		HttpResponse response = httpGet(API + DIRECTIONS + params);
+		JSONObject jsonObj = null;
+		if(response == null) {
+			throw new RouteException("Could not get route");
+		}
+		if(response.getStatusLine().getStatusCode() == 200) {
+			String body = "";
+			try {
+				BufferedReader content = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+				int val;
+				while((val = content.read()) !=  -1) {
+					char character = (char)val;
+					if(!Character.isWhitespace(character))
+						body += ((char)val);
+				}
+				jsonObj = new JSONObject(body);
+			} catch(IOException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		return jsonObj;
+	}
+	
+	public static JSONObject getPatterns(String route) throws RouteException {
+		String params = "?key=" + API_KEY + "&rt=" + route + "&format=json";
+		HttpResponse response = httpGet(API + PATTERNS + params);
 		JSONObject jsonObj = null;
 		if(response == null) {
 			throw new RouteException("Could not get route");

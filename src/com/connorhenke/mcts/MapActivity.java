@@ -13,6 +13,8 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -34,12 +36,13 @@ public class MapActivity extends Activity {
 	private List<Bus> vehicles;
 	private List<Stop> firstSet;
 	private List<Stop> secondSet;
+	private List<Pattern> patterns;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.map);
-		
+
 		route = getIntent().getStringExtra("NUMBER");
 		setTitle(route);
 		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
@@ -50,35 +53,41 @@ public class MapActivity extends Activity {
 		firstSet = new ArrayList<Stop>();
 		secondSet = new ArrayList<Stop>();
 		directions = new ArrayList<String>();
-		
-		setTitle("MCTS3000 - " + route);
-		
-		new DirectionsRequester(route).execute();
 
+		setTitle("MCTS3000 - " + route);
+
+		new DirectionsRequester(route).execute();
 	}
-	
+
 	private void displayBuses() {
 		for(Bus bus : vehicles) {
-					map.addMarker(new MarkerOptions()
-					.flat(true)
-					.position(bus.getLocation())
-					.rotation(bus.getHeading())
-					.icon(BitmapDescriptorFactory.fromResource(R.drawable.arrow))
-					.title(bus.getVid()));
+			map.addMarker(new MarkerOptions()
+			.flat(true)
+			.position(bus.getLocation())
+			.rotation(bus.getHeading())
+			.icon(BitmapDescriptorFactory.fromResource(R.drawable.arrow))
+			.title(bus.getVid()));
 		}
 	}
-	
+
 	private void displayStops(List<Stop> stopList) {
 		map.clear();
 		displayBuses();
+		displayPattern();
 		for(Stop stop : stopList) {
-					map.addMarker(new MarkerOptions()
-					.flat(true)
-					.position(new LatLng(Double.parseDouble(stop.getLatitude()), Double.parseDouble(stop.getLongitude())))
-					.icon(BitmapDescriptorFactory.fromResource(R.drawable.circledot))
-					.title(stop.getStopId() != null ? stop.getStopId() : ""));
+			map.addMarker(new MarkerOptions()
+			.flat(true)
+			.position(new LatLng(Double.parseDouble(stop.getLatitude()), Double.parseDouble(stop.getLongitude())))
+			.icon(BitmapDescriptorFactory.fromResource(R.drawable.circledot))
+			.title(stop.getStopId() != null ? stop.getStopId() : ""));
 		}
-		
+
+	}
+
+	private void displayPattern() {
+		for(Pattern pattern : patterns) {
+			map.addPolyline(new PolylineOptions());
+		}
 	}
 
 	class StopsRequester extends AsyncTask<String, String, JSONObject> {
@@ -115,7 +124,7 @@ public class MapActivity extends Activity {
 			}catch(Exception e) {
 				e.printStackTrace();
 			}
-			
+
 		}
 
 	}
@@ -174,42 +183,42 @@ public class MapActivity extends Activity {
 		}
 
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.map_menu, menu);
-	    return true;
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.map_menu, menu);
+		return true;
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-	    // Handle item selection
-	    switch (item.getItemId()) {
-	        case R.id.show_stops:
-	        	AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
-	        	String[] options = Arrays.copyOf(directions.toArray(), directions.toArray().length, String[].class);
-	            builder.setTitle(R.string.show_stops)
-	                   .setItems(options, new DialogInterface.OnClickListener() {
-	                       public void onClick(DialogInterface dialog, int which) {
-	                    	   switch(which) {
-	                    	   case 0:
-	                    		   displayStops(firstSet);
-	                    		   break;
-	                    	   case 1:
-	                    		   displayStops(secondSet);
-	                    		   break;
-	                    	   }
-	                    	   dialog.dismiss();
-	                       }
-	            });
-	            Dialog dialog = builder.create();
-	            dialog.show();
+		// Handle item selection
+		switch (item.getItemId()) {
+		case R.id.show_stops:
+			AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
+			String[] options = Arrays.copyOf(directions.toArray(), directions.toArray().length, String[].class);
+			builder.setTitle(R.string.show_stops)
+			.setItems(options, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					switch(which) {
+					case 0:
+						displayStops(firstSet);
+						break;
+					case 1:
+						displayStops(secondSet);
+						break;
+					}
+					dialog.dismiss();
+				}
+			});
+			Dialog dialog = builder.create();
+			dialog.show();
 
-	            return true;
-	        default:
-	            return super.onOptionsItemSelected(item);
-	    }
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	class DirectionsRequester extends AsyncTask<String, String, JSONObject> {
@@ -293,6 +302,65 @@ public class MapActivity extends Activity {
 						String dir = direction.getString("dir");
 						Log.d("DIR", dir);
 						directions.add(dir);
+					}
+				}catch(Exception e) {
+					e.printStackTrace();
+				}
+			} else {
+				Toast.makeText(getApplicationContext(), exception.getMessage(), Toast.LENGTH_SHORT).show();
+				MapActivity.this.finish();
+			}
+		}
+
+	}
+
+	class PatternsRequester extends AsyncTask<String, String, JSONObject> {
+
+		String route;
+		Exception exception;
+		List<Pattern> list;
+
+		public PatternsRequester(String route, List<Pattern> list) {
+			this.route = route;
+			this.list = list;
+		}
+
+		@Override
+		protected JSONObject doInBackground(String... params) {
+			JSONObject patterns;
+			try {
+				patterns = Constants.getPatterns(route);
+			} catch (RouteException e) {
+				exception = e;
+				patterns = null;
+			}
+			Log.i(WIFI_SERVICE, "Request completed");
+			return patterns;
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			if(exception == null) {
+				try {
+					JSONArray patternList = result.getJSONObject("bustime-response").getJSONArray("ptr");
+					for(int i = 0; i < patternList.length(); i++) {
+						JSONObject pattern = (JSONObject)patternList.get(i);
+						String pid = pattern.getString("pid");
+						double ln = Double.parseDouble(pattern.getString("ln"));
+						String rtdir = pattern.getString("rtdir");
+						JSONArray pt = pattern.getJSONArray("pt");
+
+						List<PatternTurn> patternTurns = new ArrayList<PatternTurn>();
+						for(int j = 0; j < pt.length(); j++) {
+							JSONObject patternDetails = (JSONObject)pt.get(i);
+							int seq = Integer.parseInt(patternDetails.getString("seq"));
+							String lat = patternDetails.getString("lat");
+							String lon = patternDetails.getString("lon");
+							String typ = patternDetails.getString("typ");
+							double pdist = Double.parseDouble(patternDetails.getString("pdist"));
+							patternTurns.add(new PatternTurn(seq, lat, lon, typ, pdist));
+						}
+						list.add(new Pattern(pid, ln, rtdir, patternTurns));
 					}
 				}catch(Exception e) {
 					e.printStackTrace();
