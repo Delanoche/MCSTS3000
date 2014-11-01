@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -53,9 +54,11 @@ public class MapActivity extends Activity {
 		firstSet = new ArrayList<Stop>();
 		secondSet = new ArrayList<Stop>();
 		directions = new ArrayList<String>();
+		patterns = new ArrayList<Pattern>();
 
 		setTitle("MCTS3000 - " + route);
 
+		new PatternsRequester(route, patterns).execute();
 		new DirectionsRequester(route).execute();
 	}
 
@@ -86,7 +89,14 @@ public class MapActivity extends Activity {
 
 	private void displayPattern() {
 		for(Pattern pattern : patterns) {
-			map.addPolyline(new PolylineOptions());
+			List<LatLng> path = new ArrayList<LatLng>();
+			for(PatternTurn patternTurn : pattern.getPatternTurns()) {
+				path.add(new LatLng(Double.parseDouble(patternTurn.getLatitude()), Double.parseDouble(patternTurn.getLongitude())));
+			}
+			map.addPolyline(new PolylineOptions()
+		     .addAll(path)
+		     .width(5)
+		     .color(Color.RED));
 		}
 	}
 
@@ -365,6 +375,7 @@ public class MapActivity extends Activity {
 				}catch(Exception e) {
 					e.printStackTrace();
 				}
+				displayPattern();
 			} else {
 				Toast.makeText(getApplicationContext(), exception.getMessage(), Toast.LENGTH_SHORT).show();
 				MapActivity.this.finish();
