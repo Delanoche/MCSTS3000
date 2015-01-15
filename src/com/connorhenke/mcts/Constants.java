@@ -61,7 +61,7 @@ public class Constants {
 	public static JSONObject getPredictions(String stop, String route) {
 		String params = "?key=" + API_KEY + "&rt=" + route + "&stpid=" + stop + "&format=json";
 		Log.d("request", API + PREDICTIONS + params);
-		HttpResponse response = httpGet(API + STOPS + params);
+		HttpResponse response = httpGet(API + PREDICTIONS + params);
 		JSONObject j = null;
 		if(response.getStatusLine().getStatusCode() == 200) {
 			String body = "";

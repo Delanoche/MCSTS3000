@@ -10,9 +10,11 @@ import org.w3c.dom.Document;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.app.Activity;
@@ -44,6 +46,13 @@ public class MapActivity extends Activity {
 		route = getIntent().getStringExtra("NUMBER");
 		setTitle(route);
 		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+		map.setOnMarkerClickListener(new OnMarkerClickListener() {
+			@Override
+			public boolean onMarkerClick(Marker marker) {
+				new PredictionsRequester(marker.getTitle(), route).execute();
+				return true;
+			}
+		});
 
 		map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(43.038940, -87.906448), 12.0f));
 		vehicles = new ArrayList<Bus>();
@@ -287,6 +296,13 @@ public class MapActivity extends Activity {
 			if(exception == null) {
 				try {
 					JSONObject response = result.getJSONObject("bustime-response");
+					JSONArray prd = response.getJSONArray("prd"); 
+					for(int i = 0; i < prd.length(); i++) {
+						JSONObject obj = prd.getJSONObject(i);
+						Prediction pred = new Prediction();
+						pred.loadJSON(obj);
+						Toast.makeText(getApplicationContext(), pred.getPrdctdn(), Toast.LENGTH_SHORT).show();
+					}
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
