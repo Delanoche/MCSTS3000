@@ -1,24 +1,19 @@
-package com.connorhenke.mcts;
+package com.connorhenke.mcts3000;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Color;
-import android.inputmethodservice.Keyboard.Row;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.Space;
 import android.widget.TextView;
+
+import com.connorhenke.mcts.R;
+
+import java.util.List;
 
 public class RoutesAdapter extends ArrayAdapter<Route> {
 	
@@ -39,7 +34,7 @@ public class RoutesAdapter extends ArrayAdapter<Route> {
 		
 		if(view == null) {
 			LayoutInflater inflater = ((Activity)context).getLayoutInflater();
-			view = inflater.inflate(layoutResourceId, parent, false);
+			view = inflater.inflate(R.layout.route_item, parent, false);
 		}
 		TextView number = (TextView) view.findViewById(R.id.number);
 		TextView name = (TextView) view.findViewById(R.id.name);

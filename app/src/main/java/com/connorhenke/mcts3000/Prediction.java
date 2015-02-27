@@ -1,4 +1,4 @@
-package com.connorhenke.mcts;
+package com.connorhenke.mcts3000;
 
 import org.json.JSONException;
 import org.json.JSONObject;

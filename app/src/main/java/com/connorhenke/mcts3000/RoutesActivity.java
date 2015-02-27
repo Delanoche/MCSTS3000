@@ -1,7 +1,4 @@
-package com.connorhenke.mcts;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.connorhenke.mcts3000;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -16,6 +13,11 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.connorhenke.mcts.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class RoutesActivity extends Activity {
 	

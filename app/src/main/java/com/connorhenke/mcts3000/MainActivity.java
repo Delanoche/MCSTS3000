@@ -1,8 +1,10 @@
-package com.connorhenke.mcts;
+package com.connorhenke.mcts3000;
 
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
+
+import com.connorhenke.mcts.R;
 
 public class MainActivity extends Activity {
 
