@@ -7,6 +7,6 @@
         android:showAsAction="always" />
 
     <item android:id="@+id/show_stops"
-        android:title="@string/show_stops"
-        android:showAsAction="ifRoom"/>
+          android:title="@string/show_stops"
+          android:showAsAction="ifRoom"/>
 </menu>
