@@ -44,6 +44,8 @@
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyDtPz_FgHfHfH9AYjdBEhLNJhYauoMJtuc" />
 
+        <service android:name="com.connorhenke.mcts3000.UpdateWidgetService" />
+
         <receiver
             android:icon="@drawable/ic_launcher"
             android:label="MCTS3000 Widget"
