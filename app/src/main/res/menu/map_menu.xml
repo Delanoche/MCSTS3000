@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/show_stops"
-          android:title="@string/show_stops"
-          android:showAsAction="ifRoom"/>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/show_stops"
+        android:title="@string/show_stops"
+        android:showAsAction="ifRoom" />
 </menu>
