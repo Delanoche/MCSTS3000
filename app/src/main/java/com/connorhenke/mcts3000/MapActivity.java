@@ -163,6 +163,7 @@ public class MapActivity extends Activity {
                 try {
                     JSONArray vehicleList = result.getJSONObject("bustime-response").getJSONArray("vehicle");
                     map.clear();
+                    vehicles.clear();
                     for (int i = 0; i < vehicleList.length(); i++) {
                         JSONObject vehicle = (JSONObject) vehicleList.get(i);
                         String vid = vehicle.getString("vid");
@@ -201,6 +202,9 @@ public class MapActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
+            case R.id.menu_refresh:
+                refresh();
+                return true;
             case R.id.show_stops:
                 AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
                 String[] options = Arrays.copyOf(directions.toArray(), directions.toArray().length, String[].class);

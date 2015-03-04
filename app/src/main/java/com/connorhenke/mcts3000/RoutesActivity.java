@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -24,6 +25,7 @@ public class RoutesActivity extends Activity {
     protected List<Route> routes = new ArrayList<Route>();
     protected RoutesAdapter adapter;
     ListView listView;
+    SwipeRefreshLayout swipeLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +45,15 @@ public class RoutesActivity extends Activity {
                 startActivity(intent);
                 overridePendingTransition(R.anim.lefttoright, R.anim.righttoleft);
 
+            }
+        });
+
+        swipeLayout = (SwipeRefreshLayout) this.findViewById(R.id.swipe_container);
+        swipeLayout.setColorSchemeResources(android.R.color.holo_blue_bright);
+        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                new RoutesRequester().execute();
             }
         });
 
@@ -75,6 +86,7 @@ public class RoutesActivity extends Activity {
                     String rtclr = route.getString("rtclr");
                     routes.add(new Route(rt, rtnm, rtclr));
                 }
+                swipeLayout.setRefreshing(false);
                 adapter.notifyDataSetChanged();
             } catch (Exception e) {
 
