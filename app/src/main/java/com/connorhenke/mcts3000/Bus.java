@@ -4,11 +4,16 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class Bus {
 
+    public static final String VID = "vid";
+    public static final String LAT = "lat";
+    public static final String LON = "lon";
+    public static final String HEADING = "hdg";
+
     private LatLng location;
     private int heading;
-    private String vid;
+    private int vid;
 
-    public Bus(LatLng location, int heading, String vid) {
+    public Bus(LatLng location, int heading, int vid) {
         this.location = location;
         this.heading = heading;
         this.vid = vid;
@@ -22,7 +27,7 @@ public class Bus {
         return heading;
     }
 
-    public String getVid() {
+    public int getVid() {
         return vid;
     }
 }

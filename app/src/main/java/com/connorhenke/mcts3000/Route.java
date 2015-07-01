@@ -2,6 +2,10 @@ package com.connorhenke.mcts3000;
 
 public class Route {
 
+    public static final String NUMBER = "rt";
+    public static final String NAME = "rtnm";
+    public static final String COLOR = "rtclr";
+
     private String name;
     private String number;
     private String color;
@@ -23,5 +27,4 @@ public class Route {
     public String getColor() {
         return color;
     }
-
 }

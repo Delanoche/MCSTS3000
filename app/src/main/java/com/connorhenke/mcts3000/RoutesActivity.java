@@ -1,14 +1,12 @@
 package com.connorhenke.mcts3000;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import android.app.Activity;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -16,11 +14,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.connorhenke.mcts.R;
+import com.connorhenke.mcts3000.loaders.RoutesLoader;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class RoutesActivity extends Activity {
+public class RoutesActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Route>> {
 
     protected List<Route> routes = new ArrayList<Route>();
     protected RoutesAdapter adapter;
@@ -31,6 +30,9 @@ public class RoutesActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.routes);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         listView = (ListView) this.findViewById(android.R.id.list);
         listView.setOnItemClickListener(new OnItemClickListener() {
@@ -53,45 +55,37 @@ public class RoutesActivity extends Activity {
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                new RoutesRequester().execute();
+                getSupportLoaderManager().restartLoader(0, null, RoutesActivity.this).forceLoad();
             }
         });
 
         if (adapter == null) {
-            adapter = new RoutesAdapter(this, R.layout.route_item, routes);
+            adapter = new RoutesAdapter(this, R.layout.route_item);
         }
         listView.setAdapter(adapter);
 
-        new RoutesRequester().execute();
+        getSupportLoaderManager().initLoader(0, null, this).forceLoad();
     }
 
-    class RoutesRequester extends AsyncTask<String, String, JSONObject> {
+    @Override
+    public Loader<List<Route>> onCreateLoader(int id, Bundle args) {
+        return new RoutesLoader(this);
+    }
 
-        @Override
-        protected JSONObject doInBackground(String... params) {
-            JSONObject routes = Constants.getRoutes();
-            Log.i(WIFI_SERVICE, "Request completed");
-            return routes;
+    @Override
+    public void onLoadFinished(Loader<List<Route>> loader, List<Route> data) {
+        try {
+            adapter.clear();
+            adapter.addAll(data);
+            swipeLayout.setRefreshing(false);
+            adapter.notifyDataSetChanged();
+        } catch (Exception e) {
+
         }
+    }
 
-        @Override
-        protected void onPostExecute(JSONObject result) {
-            try {
-                JSONArray routeList = result.getJSONObject("bustime-response").getJSONArray("routes");
-                routes.clear();
-                for (int i = 0; i < routeList.length(); i++) {
-                    JSONObject route = (JSONObject) routeList.get(i);
-                    String rt = route.getString("rt");
-                    String rtnm = route.getString("rtnm");
-                    String rtclr = route.getString("rtclr");
-                    routes.add(new Route(rt, rtnm, rtclr));
-                }
-                swipeLayout.setRefreshing(false);
-                adapter.notifyDataSetChanged();
-            } catch (Exception e) {
-
-            }
-        }
-
+    @Override
+    public void onLoaderReset(Loader<List<Route>> loader) {
+        // Unused
     }
 }

@@ -2,22 +2,21 @@ package com.connorhenke.mcts3000;
 
 public class Stop {
 
+    public static final String ID = "stpid";
+    public static final String NAME = "stpnm";
+    public static final String LAT = "lat";
+    public static final String LON = "lon";
+
     private String stopId;
     private String stopName;
-    private String pointDistance;
-    private String sequence;
-    private String type;
-    private String latitude;
-    private String longitude;
+    private double latitude;
+    private double longitude;
 
-    public Stop(String sequence, String type, String latitude, String longitude, String stopId, String stopName, String pointDistance) {
-        this.sequence = sequence;
-        this.type = type;
+    public Stop(double latitude, double longitude, String stopId, String stopName) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.stopId = stopId;
         this.stopName = stopName;
-        this.pointDistance = pointDistance;
     }
 
     public String getStopId() {
@@ -28,23 +27,11 @@ public class Stop {
         return stopName;
     }
 
-    public String getPointDistance() {
-        return pointDistance;
-    }
-
-    public String getSequence() {
-        return sequence;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public String getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public String getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 

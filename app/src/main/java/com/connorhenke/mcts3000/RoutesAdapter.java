@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.connorhenke.mcts.R;
@@ -19,13 +21,11 @@ public class RoutesAdapter extends ArrayAdapter<Route> {
 
     Context context;
     int layoutResourceId;
-    List<Route> routes = null;
 
-    public RoutesAdapter(Context context, int layoutResourceId, List<Route> data) {
-        super(context, layoutResourceId, data);
+    public RoutesAdapter(Context context, int layoutResourceId) {
+        super(context, layoutResourceId);
         this.layoutResourceId = layoutResourceId;
         this.context = context;
-        this.routes = data;
     }
 
     @Override
@@ -36,14 +36,22 @@ public class RoutesAdapter extends ArrayAdapter<Route> {
             LayoutInflater inflater = ((Activity) context).getLayoutInflater();
             view = inflater.inflate(R.layout.route_item, parent, false);
         }
+
+        FrameLayout list = (FrameLayout) view.findViewById(R.id.routeslist);
+//        if(position % 2 == 0) {
+//            list.setBackgroundColor(Color.argb(0, 0, 0, 0));
+//        } else {
+//            list.setBackgroundColor(Color.argb(0, 0, 0, 0));
+//        }
+
         TextView number = (TextView) view.findViewById(R.id.number);
         TextView name = (TextView) view.findViewById(R.id.name);
 
-        number.setText(routes.get(position).getNumber());
-        name.setText(routes.get(position).getName());
+        number.setText(getItem(position).getNumber());
+        name.setText(getItem(position).getName());
 
-        TextView color = (TextView) view.findViewById(R.id.color_block);
-        int bg = Color.parseColor(routes.get(position).getColor());
+        View color = view.findViewById(R.id.color_block);
+        int bg = Color.parseColor(getItem(position).getColor());
         Log.d("COLOR", "" + bg);
         color.setBackgroundColor(bg);
 

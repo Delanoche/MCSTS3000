@@ -1,40 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/routeslist"
-    android:orientation="horizontal"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="72dp">
 
-    <TextView
+    <View
+        android:layout_gravity="center_vertical"
+        android:gravity="center_vertical"
         android:id="@+id/color_block"
-        android:layout_weight="1"
-        android:layout_width="0dp"
-        android:layout_height="fill_parent" />
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp" />
 
     <LinearLayout
+        android:paddingLeft="72dp"
+        android:paddingStart="72dp"
         android:orientation="vertical"
-        android:layout_weight="11"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content">
+        android:layout_gravity="center_vertical"
+        android:gravity="center_vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
 
         <TextView
             android:id="@+id/number"
+            android:singleLine="true"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dip"
-            android:layout_marginTop="10dip"
-            android:textSize="12pt"
-            android:textColor="#454545"
-            android:fontFamily="sans-serif-thin" />
+            android:textSize="24sp"
+            android:textColor="#DE000000"/>
 
         <TextView
             android:id="@+id/name"
-            android:layout_width="wrap_content"
+            android:singleLine="true"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="15dip"
-            android:layout_marginTop="5dip"
-            android:layout_marginBottom="10dip"
-            android:textSize="8pt"
-            android:fontFamily="sans-serif-thin" />
+            android:textColor="#8A000000"
+            android:textSize="16sp"/>
     </LinearLayout>
-</LinearLayout>
+</FrameLayout>
