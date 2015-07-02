@@ -1,4 +1,4 @@
-package com.connorhenke.mcts3000;
+package com.connorhenke.mcts3000.activities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +9,10 @@ import com.connorhenke.mcts3000.loaders.DirectionsLoader;
 import com.connorhenke.mcts3000.loaders.PredictionsLoader;
 import com.connorhenke.mcts3000.loaders.StopsLoader;
 import com.connorhenke.mcts3000.loaders.VehiclesLoader;
+import com.connorhenke.mcts3000.models.Bus;
+import com.connorhenke.mcts3000.models.Direction;
+import com.connorhenke.mcts3000.models.Prediction;
+import com.connorhenke.mcts3000.models.Stop;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;

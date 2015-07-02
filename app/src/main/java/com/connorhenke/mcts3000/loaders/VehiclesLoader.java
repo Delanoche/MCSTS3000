@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.v4.content.AsyncTaskLoader;
 
 import com.connorhenke.mcts3000.BaseService;
-import com.connorhenke.mcts3000.Bus;
+import com.connorhenke.mcts3000.models.Bus;
 
 import org.json.JSONException;
 

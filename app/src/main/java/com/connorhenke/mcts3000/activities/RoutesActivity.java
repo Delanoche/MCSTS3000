@@ -1,4 +1,4 @@
-package com.connorhenke.mcts3000;
+package com.connorhenke.mcts3000.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,7 +14,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.connorhenke.mcts.R;
+import com.connorhenke.mcts3000.RoutesAdapter;
 import com.connorhenke.mcts3000.loaders.RoutesLoader;
+import com.connorhenke.mcts3000.models.Route;
 
 import java.util.ArrayList;
 import java.util.List;
