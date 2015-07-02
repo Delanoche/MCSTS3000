@@ -71,12 +71,11 @@ public class MapActivity extends AppCompatActivity {
             }
         });
 
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(43.038940, -87.906448), 12.0f));
         vehicles = new ArrayList<Bus>();
         stops = new ArrayList<Stop>();
         directions = new ArrayList<String>();
 
-        setTitle("MCTS3000 - " + route);
+        setTitle(route);
 
         getSupportLoaderManager().initLoader(DIRECTIONS, DirectionsLoader.newBundle(route), directionsLoaderListener).forceLoad();
         getSupportLoaderManager().initLoader(VEHICLES, VehiclesLoader.newBundle(route), vehiclesLoaderListener).forceLoad();
@@ -88,6 +87,7 @@ public class MapActivity extends AppCompatActivity {
     }
 
     private void displayBuses() {
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(43.038940, -87.906448), 12.0f));
         for (Bus bus : vehicles) {
             map.addMarker(new MarkerOptions()
                     .flat(true)

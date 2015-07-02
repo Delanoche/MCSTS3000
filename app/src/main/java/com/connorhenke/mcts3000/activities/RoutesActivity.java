@@ -23,10 +23,8 @@ import java.util.List;
 
 public class RoutesActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Route>> {
 
-    protected List<Route> routes = new ArrayList<Route>();
     protected RoutesAdapter adapter;
     ListView listView;
-    SwipeRefreshLayout swipeLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,17 +45,6 @@ public class RoutesActivity extends AppCompatActivity implements LoaderManager.L
                 intent.putExtra("NUMBER", number.getText());
                 intent.putExtra("NAME", name.getText());
                 startActivity(intent);
-                overridePendingTransition(R.anim.lefttoright, R.anim.righttoleft);
-
-            }
-        });
-
-        swipeLayout = (SwipeRefreshLayout) this.findViewById(R.id.swipe_container);
-        swipeLayout.setColorSchemeResources(android.R.color.holo_blue_bright);
-        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                getSupportLoaderManager().restartLoader(0, null, RoutesActivity.this).forceLoad();
             }
         });
 
@@ -79,7 +66,6 @@ public class RoutesActivity extends AppCompatActivity implements LoaderManager.L
         try {
             adapter.clear();
             adapter.addAll(data);
-            swipeLayout.setRefreshing(false);
             adapter.notifyDataSetChanged();
         } catch (Exception e) {
 
