@@ -1,47 +1,45 @@
-package com.connorhenke.mcts3000.activities;
+package com.connorhenke.mcts3000.fragments;
 
-import android.app.ActivityOptions;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.connorhenke.mcts.R;
 import com.connorhenke.mcts3000.RoutesAdapter;
+import com.connorhenke.mcts3000.activities.MapActivity;
 import com.connorhenke.mcts3000.loaders.RoutesLoader;
 import com.connorhenke.mcts3000.models.Route;
 
 import java.util.List;
 
-public class RoutesActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Route>> {
+public class RoutesFragment extends Fragment implements LoaderManager.LoaderCallbacks<List<Route>> {
 
-    protected RoutesAdapter adapter;
-    ListView listView;
+    private RoutesAdapter adapter;
+    private ListView listView;
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.routes);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.routes, null, false);
 
-        listView = (ListView) this.findViewById(android.R.id.list);
-        listView.setOnItemClickListener(new OnItemClickListener() {
+        listView = (ListView) view.findViewById(android.R.id.list);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 TextView number = (TextView) view.findViewById(R.id.number);
                 TextView name = (TextView) view.findViewById(R.id.name);
-                Intent intent = new Intent(getApplicationContext(), MapActivity.class);
+                Intent intent = new Intent(getActivity(), MapActivity.class);
                 intent.putExtra("NUMBER", number.getText());
                 intent.putExtra("NAME", name.getText());
                 startActivity(intent);
@@ -49,16 +47,23 @@ public class RoutesActivity extends AppCompatActivity implements LoaderManager.L
         });
 
         if (adapter == null) {
-            adapter = new RoutesAdapter(this, R.layout.route_item);
+            adapter = new RoutesAdapter(getActivity(), R.layout.route_item);
         }
         listView.setAdapter(adapter);
 
-        getSupportLoaderManager().initLoader(0, null, this).forceLoad();
+        return view;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        getLoaderManager().initLoader(0, null, this).forceLoad();
     }
 
     @Override
     public Loader<List<Route>> onCreateLoader(int id, Bundle args) {
-        return new RoutesLoader(this);
+        return new RoutesLoader(getActivity());
     }
 
     @Override
