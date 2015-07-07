@@ -1,10 +1,11 @@
-package com.connorhenke.mcts3000;
+package com.connorhenke.mcts3000.activities;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -14,17 +15,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.connorhenke.mcts.R;
+import com.connorhenke.mcts3000.RoutesAdapter;
 import com.connorhenke.mcts3000.loaders.RoutesLoader;
+import com.connorhenke.mcts3000.models.Route;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class RoutesActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Route>> {
 
-    protected List<Route> routes = new ArrayList<Route>();
     protected RoutesAdapter adapter;
     ListView listView;
-    SwipeRefreshLayout swipeLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,17 +45,6 @@ public class RoutesActivity extends AppCompatActivity implements LoaderManager.L
                 intent.putExtra("NUMBER", number.getText());
                 intent.putExtra("NAME", name.getText());
                 startActivity(intent);
-                overridePendingTransition(R.anim.lefttoright, R.anim.righttoleft);
-
-            }
-        });
-
-        swipeLayout = (SwipeRefreshLayout) this.findViewById(R.id.swipe_container);
-        swipeLayout.setColorSchemeResources(android.R.color.holo_blue_bright);
-        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                getSupportLoaderManager().restartLoader(0, null, RoutesActivity.this).forceLoad();
             }
         });
 
@@ -77,7 +66,6 @@ public class RoutesActivity extends AppCompatActivity implements LoaderManager.L
         try {
             adapter.clear();
             adapter.addAll(data);
-            swipeLayout.setRefreshing(false);
             adapter.notifyDataSetChanged();
         } catch (Exception e) {
 

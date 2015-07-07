@@ -10,12 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.connorhenke.mcts.R;
-
-import java.util.List;
+import com.connorhenke.mcts3000.models.Route;
 
 public class RoutesAdapter extends ArrayAdapter<Route> {
 

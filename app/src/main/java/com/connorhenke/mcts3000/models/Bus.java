@@ -1,4 +1,4 @@
-package com.connorhenke.mcts3000;
+package com.connorhenke.mcts3000.models;
 
 import com.google.android.gms.maps.model.LatLng;
 

@@ -1,21 +1,21 @@
 <resources>
 
     <style name="Theme.MyTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Set AppCompat’s actionBarStyle -->
-        <item name="actionBarStyle">@style/MyActionBar</item>
+        <item name="colorPrimary">@color/mcts_blue</item>
+        <item name="colorPrimaryDark">@color/mcts_blue_dark</item>
+        <item name="colorAccent">@color/mcts_yellow</item>
 
-        <item name="colorPrimary">@color/blue</item>
-        <item name="colorPrimaryDark">@color/green</item>
+    </style>
+
+    <style name="Theme.ActionBar" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/mcts_blue</item>
+        <item name="colorPrimaryDark">@color/mcts_blue_dark</item>
+        <item name="colorAccent">@color/mcts_yellow</item>
     </style>
 
     <!-- Application theme. -->
     <style name="AppTheme" parent="Theme.MyTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
-    </style>
-
-    <!-- ActionBar styles -->
-    <style name="MyActionBar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
-        <item name="android:background">@drawable/actionbar_background</item>
     </style>
 
 

@@ -1,4 +1,4 @@
-package com.connorhenke.mcts3000;
+package com.connorhenke.mcts3000.models;
 
 public class Direction {
 

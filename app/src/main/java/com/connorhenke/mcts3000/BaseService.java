@@ -2,9 +2,12 @@ package com.connorhenke.mcts3000;
 
 import android.util.Log;
 
+import com.connorhenke.mcts3000.models.Bus;
+import com.connorhenke.mcts3000.models.Direction;
+import com.connorhenke.mcts3000.models.Prediction;
+import com.connorhenke.mcts3000.models.Route;
+import com.connorhenke.mcts3000.models.Stop;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -15,7 +18,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class BaseService {

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 
 import com.connorhenke.mcts3000.BaseService;
-import com.connorhenke.mcts3000.Route;
+import com.connorhenke.mcts3000.models.Route;
 
 import org.json.JSONException;
 

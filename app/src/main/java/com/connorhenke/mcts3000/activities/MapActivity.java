@@ -1,4 +1,4 @@
-package com.connorhenke.mcts3000;
+package com.connorhenke.mcts3000.activities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +9,10 @@ import com.connorhenke.mcts3000.loaders.DirectionsLoader;
 import com.connorhenke.mcts3000.loaders.PredictionsLoader;
 import com.connorhenke.mcts3000.loaders.StopsLoader;
 import com.connorhenke.mcts3000.loaders.VehiclesLoader;
+import com.connorhenke.mcts3000.models.Bus;
+import com.connorhenke.mcts3000.models.Direction;
+import com.connorhenke.mcts3000.models.Prediction;
+import com.connorhenke.mcts3000.models.Stop;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
@@ -21,14 +25,17 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.transition.Explode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.Window;
 import android.widget.Toast;
 
 public class MapActivity extends AppCompatActivity {
@@ -67,12 +74,11 @@ public class MapActivity extends AppCompatActivity {
             }
         });
 
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(43.038940, -87.906448), 12.0f));
         vehicles = new ArrayList<Bus>();
         stops = new ArrayList<Stop>();
         directions = new ArrayList<String>();
 
-        setTitle("MCTS3000 - " + route);
+        setTitle(route);
 
         getSupportLoaderManager().initLoader(DIRECTIONS, DirectionsLoader.newBundle(route), directionsLoaderListener).forceLoad();
         getSupportLoaderManager().initLoader(VEHICLES, VehiclesLoader.newBundle(route), vehiclesLoaderListener).forceLoad();
@@ -84,6 +90,7 @@ public class MapActivity extends AppCompatActivity {
     }
 
     private void displayBuses() {
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(43.038940, -87.906448), 12.0f));
         for (Bus bus : vehicles) {
             map.addMarker(new MarkerOptions()
                     .flat(true)
@@ -104,7 +111,6 @@ public class MapActivity extends AppCompatActivity {
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.circledot))
                     .title(stop.getStopId() != null ? stop.getStopId() : ""));
         }
-
     }
 
     @Override
