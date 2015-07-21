@@ -13,6 +13,7 @@ import com.connorhenke.mcts3000.models.Bus;
 import com.connorhenke.mcts3000.models.Direction;
 import com.connorhenke.mcts3000.models.Prediction;
 import com.connorhenke.mcts3000.models.Stop;
+import com.connorhenke.mcts3000.persistence.SQLiteOpenHelperImpl;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
@@ -70,6 +71,7 @@ public class MapActivity extends AppCompatActivity {
             @Override
             public boolean onMarkerClick(Marker marker) {
                 getSupportLoaderManager().restartLoader(PREDICTIONS, PredictionsLoader.newBundle(route, marker.getTitle()), predictionsLoaderListener).forceLoad();
+                SQLiteOpenHelperImpl.getInstance(MapActivity.this).addFavorite(new Stop(10, 10, "LOL", "name"), route);
                 return true;
             }
         });
