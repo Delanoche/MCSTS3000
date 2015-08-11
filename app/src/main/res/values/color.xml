@@ -6,5 +6,7 @@
     <color name="mcts_green">#4caf50</color>
     <color name="mcts_green_dark">#388e3c</color>
     <color name="mcts_yellow">#ffc107</color>
+    <color name="primary_text">#DE000000</color>
+    <color name="secondary_text">#8A000000</color>
 
 </resources>

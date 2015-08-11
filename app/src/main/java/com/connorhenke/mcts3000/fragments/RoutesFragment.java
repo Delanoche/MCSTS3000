@@ -25,6 +25,7 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
 
     private RoutesAdapter adapter;
     private ListView listView;
+    private View progress;
 
     @Nullable
     @Override
@@ -32,16 +33,16 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
 
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.routes, null, false);
 
+        progress = view.findViewById(R.id.routes_progress_bar);
         listView = (ListView) view.findViewById(android.R.id.list);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                TextView number = (TextView) view.findViewById(R.id.number);
-                TextView name = (TextView) view.findViewById(R.id.name);
+                Route item = adapter.getItem(position);
                 Intent intent = new Intent(getActivity(), MapActivity.class);
-                intent.putExtra("NUMBER", number.getText());
-                intent.putExtra("NAME", name.getText());
+                intent.putExtra("NUMBER", item.getNumber());
+                intent.putExtra("NAME", item.getName());
                 startActivity(intent);
             }
         });
@@ -54,11 +55,16 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
         return view;
     }
 
+    private void hideProgressBar() {
+        progress.setVisibility(View.GONE);
+        listView.setVisibility(View.VISIBLE);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getLoaderManager().initLoader(0, null, this).forceLoad();
+        getLoaderManager().restartLoader(0, null, this);
     }
 
     @Override
@@ -68,13 +74,10 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onLoadFinished(Loader<List<Route>> loader, List<Route> data) {
-        try {
-            adapter.clear();
-            adapter.addAll(data);
-            adapter.notifyDataSetChanged();
-        } catch (Exception e) {
-
-        }
+        adapter.clear();
+        adapter.addAll(data);
+        adapter.notifyDataSetChanged();
+        hideProgressBar();
     }
 
     @Override

@@ -15,6 +15,12 @@ public class FavoritesLoader extends AsyncTaskLoader<List<Favorite>> {
     }
 
     @Override
+    protected void onStartLoading() {
+        super.onStartLoading();
+        forceLoad();
+    }
+
+    @Override
     public List<Favorite> loadInBackground() {
         List<Favorite> routes = SQLiteOpenHelperImpl.getInstance(getContext()).getFavorites();
         return routes;

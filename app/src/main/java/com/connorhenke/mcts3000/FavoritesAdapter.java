@@ -29,11 +29,13 @@ public class FavoritesAdapter extends ArrayAdapter<Favorite> {
             view = inflater.inflate(R.layout.item_favorite, parent, false);
             holder = new ViewHolder();
             view.setTag(holder);
+            holder.name = (TextView) view.findViewById(R.id.favorite_name);
+            holder.route = (TextView) view.findViewById(R.id.route);
         } else {
             holder = (ViewHolder) view.getTag();
         }
 
-        holder.name = (TextView) view.findViewById(R.id.favorite_name);
+        holder.route.setText(getItem(position).getRouteId() + " " + getItem(position).getDirection());
         holder.name.setText(getItem(position).getStopName());
 
         return view;

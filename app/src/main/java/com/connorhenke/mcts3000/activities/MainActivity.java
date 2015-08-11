@@ -11,9 +11,12 @@ import android.support.v7.widget.Toolbar;
 
 import com.connorhenke.mcts.R;
 import com.connorhenke.mcts3000.fragments.FavoritesFragment;
+import com.connorhenke.mcts3000.fragments.RemoveDialogFragment;
 import com.connorhenke.mcts3000.fragments.RoutesFragment;
+import com.connorhenke.mcts3000.models.Favorite;
+import com.connorhenke.mcts3000.persistence.SQLiteOpenHelperImpl;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements RemoveDialogFragment.FavoriteRemovedListener {
 
     private ViewPager viewPager;
     private RoutesFragment routesFragment;
@@ -36,6 +39,11 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setTabTextColors(getResources().getColorStateList(R.color.tab_text));
         tabLayout.setupWithViewPager(viewPager);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+    }
+
+    @Override
+    public void favoriteRemoved(Favorite favorite) {
+        favoritesFragment.removedFavorite(favorite);
     }
 
     private class MyPagerAdapter extends FragmentPagerAdapter {

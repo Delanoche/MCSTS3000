@@ -31,6 +31,8 @@
         </activity>
         <activity
             android:name="com.connorhenke.mcts3000.activities.MapActivity" />
+        <activity
+            android:name="com.connorhenke.mcts3000.activities.FavoriteActivity" />
 	    <meta-data
 	   		android:name="com.google.android.gms.version"
 	    	android:value="@integer/google_play_services_version" />

@@ -2,6 +2,7 @@ package com.connorhenke.mcts3000.activities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import com.connorhenke.mcts.R;
@@ -11,6 +12,7 @@ import com.connorhenke.mcts3000.loaders.StopsLoader;
 import com.connorhenke.mcts3000.loaders.VehiclesLoader;
 import com.connorhenke.mcts3000.models.Bus;
 import com.connorhenke.mcts3000.models.Direction;
+import com.connorhenke.mcts3000.models.Favorite;
 import com.connorhenke.mcts3000.models.Prediction;
 import com.connorhenke.mcts3000.models.Stop;
 import com.connorhenke.mcts3000.persistence.SQLiteOpenHelperImpl;
@@ -32,6 +34,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.transition.Explode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -44,13 +47,13 @@ public class MapActivity extends AppCompatActivity {
     private GoogleMap map;
     private String route;
     private List<String> directions;
+    private String currentDirection;
     private List<Bus> vehicles;
-    private List<Stop> stops;
+    private HashMap<String, Stop> stops;
 
     private static final int DIRECTIONS = 0;
     private DirectionsLoaderListener directionsLoaderListener = new DirectionsLoaderListener();
     private static final int PREDICTIONS = 1;
-    private PredictionsLoaderListener predictionsLoaderListener = new PredictionsLoaderListener();
     private static final int STOPS = 2;
     private StopsLoaderListener stopsLoaderListener = new StopsLoaderListener();
     private static final int VEHICLES = 3;
@@ -70,15 +73,18 @@ public class MapActivity extends AppCompatActivity {
         map.setOnMarkerClickListener(new OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                getSupportLoaderManager().restartLoader(PREDICTIONS, PredictionsLoader.newBundle(route, marker.getTitle()), predictionsLoaderListener).forceLoad();
-                SQLiteOpenHelperImpl.getInstance(MapActivity.this).addFavorite(new Stop(10, 10, "LOL", "name"), route);
-                return true;
+                Stop stop = stops.get(marker.getTitle());
+                if (stop != null) {
+                    startActivity(FavoriteActivity.newIntent(MapActivity.this, new Favorite(stop.getStopId(), stop.getStopName(), route, currentDirection)));
+                    return true;
+                }
+                return false;
             }
         });
 
-        vehicles = new ArrayList<Bus>();
-        stops = new ArrayList<Stop>();
-        directions = new ArrayList<String>();
+        vehicles = new ArrayList<>();
+        stops = new HashMap<>();
+        directions = new ArrayList<>();
 
         setTitle(route);
 
@@ -99,7 +105,7 @@ public class MapActivity extends AppCompatActivity {
                     .position(bus.getLocation())
                     .rotation(bus.getHeading())
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.arrow))
-                    .title("" + bus.getVid()));
+                    .title(""));
         }
     }
 
@@ -107,11 +113,12 @@ public class MapActivity extends AppCompatActivity {
         map.clear();
         displayBuses();
         for (Stop stop : stopList) {
+            stops.put(stop.getStopId(), stop);
             map.addMarker(new MarkerOptions()
                     .flat(true)
                     .position(new LatLng(stop.getLatitude(), stop.getLongitude()))
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.circledot))
-                    .title(stop.getStopId() != null ? stop.getStopId() : ""));
+                    .title(stop.getStopId()));
         }
     }
 
@@ -137,14 +144,13 @@ public class MapActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 switch (which) {
                                     case 0:
-                                        getSupportLoaderManager().restartLoader(STOPS, StopsLoader.newBundle(route, directions.get(0)), stopsLoaderListener).forceLoad();
-//                                        displayStops(firstSet);
+                                        currentDirection = directions.get(0);
                                         break;
                                     case 1:
-                                        getSupportLoaderManager().restartLoader(STOPS, StopsLoader.newBundle(route, directions.get(1)), stopsLoaderListener).forceLoad();
-//                                        displayStops(secondSet);
+                                        currentDirection = directions.get(1);
                                         break;
                                 }
+                                getSupportLoaderManager().restartLoader(STOPS, StopsLoader.newBundle(route, currentDirection), stopsLoaderListener).forceLoad();
                                 dialog.dismiss();
                             }
                         });
@@ -217,26 +223,6 @@ public class MapActivity extends AppCompatActivity {
 
         @Override
         public void onLoaderReset(Loader<List<Direction>> loader) {
-
-        }
-    }
-
-    private class PredictionsLoaderListener implements LoaderManager.LoaderCallbacks<List<Prediction>> {
-
-        @Override
-        public Loader<List<Prediction>> onCreateLoader(int id, Bundle args) {
-            return new PredictionsLoader(MapActivity.this, args);
-        }
-
-        @Override
-        public void onLoadFinished(Loader<List<Prediction>> loader, List<Prediction> data) {
-            for(Prediction prediction : data) {
-                Toast.makeText(getApplicationContext(), prediction.getPrdctdn(), Toast.LENGTH_SHORT).show();
-            }
-        }
-
-        @Override
-        public void onLoaderReset(Loader<List<Prediction>> loader) {
 
         }
     }
