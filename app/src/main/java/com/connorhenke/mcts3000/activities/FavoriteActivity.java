@@ -112,7 +112,7 @@ public class FavoriteActivity extends AppCompatActivity implements LoaderManager
             } else if (prediction.getPrdctdn().equals("DUE")) {
                 time.setText("Due");
             } else {
-                time.setText(prediction.getPrdctdn());
+                time.setText(prediction.getPrdctdn() + " minutes");
             }
             view.animate();
             layout.addView(view);
