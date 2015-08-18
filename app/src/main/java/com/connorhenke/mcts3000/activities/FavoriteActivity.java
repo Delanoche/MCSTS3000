@@ -103,17 +103,26 @@ public class FavoriteActivity extends AppCompatActivity implements LoaderManager
         animation.setDuration(250);
         LayoutAnimationController animationController = new LayoutAnimationController(animation, 0.5f);
         layout.setLayoutAnimation(animationController);
-        for (Prediction prediction : times) {
+        if (times.size() > 0) {
+            for (Prediction prediction : times) {
+                View view = inflater.inflate(R.layout.item_prediction, null);
+                view.setAnimation(animation);
+                TextView time = (TextView) view.findViewById(R.id.time);
+                if (prediction.isDelay()) {
+                    time.setText("Delayed");
+                } else if (prediction.getPrdctdn().equals("DUE")) {
+                    time.setText("Due");
+                } else {
+                    time.setText(prediction.getPrdctdn() + " minutes");
+                }
+                view.animate();
+                layout.addView(view);
+            }
+        } else {
             View view = inflater.inflate(R.layout.item_prediction, null);
             view.setAnimation(animation);
             TextView time = (TextView) view.findViewById(R.id.time);
-            if (prediction.isDelay()) {
-                time.setText("Delayed");
-            } else if (prediction.getPrdctdn().equals("DUE")) {
-                time.setText("Due");
-            } else {
-                time.setText(prediction.getPrdctdn() + " minutes");
-            }
+            time.setText("No buses currently en route");
             view.animate();
             layout.addView(view);
         }
