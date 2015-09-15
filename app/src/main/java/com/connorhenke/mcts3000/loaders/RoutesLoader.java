@@ -18,6 +18,12 @@ public class RoutesLoader extends AsyncTaskLoader<List<Route>> {
     }
 
     @Override
+    protected void onStartLoading() {
+        super.onStartLoading();
+        forceLoad();
+    }
+
+    @Override
     public List<Route> loadInBackground() {
         try {
             List<Route> routes = BaseService.getRoutes();

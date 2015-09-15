@@ -17,46 +17,48 @@ import com.connorhenke.mcts3000.models.Route;
 
 public class RoutesAdapter extends ArrayAdapter<Route> {
 
-    Context context;
-    int layoutResourceId;
+    private LayoutInflater inflater;
 
     public RoutesAdapter(Context context, int layoutResourceId) {
         super(context, layoutResourceId);
-        this.layoutResourceId = layoutResourceId;
-        this.context = context;
+        inflater = LayoutInflater.from(context);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;
 
+        ViewHolder holder;
         if (view == null) {
-            LayoutInflater inflater = ((Activity) context).getLayoutInflater();
             view = inflater.inflate(R.layout.route_item, parent, false);
+            holder = new ViewHolder();
+            view.setTag(holder);
+        } else {
+            holder = (ViewHolder) view.getTag();
         }
 
-        FrameLayout list = (FrameLayout) view.findViewById(R.id.routeslist);
-//        if(position % 2 == 0) {
-//            list.setBackgroundColor(Color.argb(0, 0, 0, 0));
-//        } else {
-//            list.setBackgroundColor(Color.argb(0, 0, 0, 0));
-//        }
+        holder.number = (TextView) view.findViewById(R.id.number);
+        holder.name = (TextView) view.findViewById(R.id.name);
 
-        TextView number = (TextView) view.findViewById(R.id.number);
-        TextView name = (TextView) view.findViewById(R.id.name);
+        holder.number.setText(getItem(position).getNumber());
+        holder.name.setText(getItem(position).getName());
 
-        number.setText(getItem(position).getNumber());
-        name.setText(getItem(position).getName());
-
-        View color = view.findViewById(R.id.color_block);
+        holder.color = view.findViewById(R.id.color_block);
         int bg = Color.parseColor(getItem(position).getColor());
-        Log.d("COLOR", "" + bg);
-        color.setBackgroundColor(bg);
+        holder.color.setBackgroundColor(bg);
 
         return view;
     }
 
     private static int parseColor(String color) {
         return Color.rgb(Integer.valueOf(color.substring(1, 3), 16).intValue(), Integer.valueOf(color.substring(3, 5), 16).intValue(), Integer.valueOf(color.substring(5, 7), 16).intValue());
+    }
+
+    private class ViewHolder {
+
+        private TextView number;
+        private TextView name;
+        private View color;
+
     }
 }

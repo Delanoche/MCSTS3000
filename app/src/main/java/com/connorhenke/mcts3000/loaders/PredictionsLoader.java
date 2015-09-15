@@ -19,6 +19,12 @@ public class PredictionsLoader extends AsyncTaskLoader<List<Prediction>> {
     private String route;
     private String stop;
 
+    @Override
+    protected void onStartLoading() {
+        super.onStartLoading();
+        forceLoad();
+    }
+
     public static Bundle newBundle(String route, String stop) {
         Bundle bundle = new Bundle();
         bundle.putString(ARG_ROUTE, route);
