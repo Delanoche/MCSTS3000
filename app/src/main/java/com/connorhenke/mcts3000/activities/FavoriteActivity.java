@@ -52,17 +52,17 @@ public class FavoriteActivity extends AppCompatActivity implements LoaderManager
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorite);
 
+        times = new LinkedList<>();
         favorite = getIntent().getParcelableExtra(ARG_FAVORITE);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Arrival Times");
+        getSupportActionBar().setTitle(R.string.title_favorite);
 
         ((TextView) findViewById(R.id.route)).setText(favorite.getRouteId() + " " + favorite.getDirection());
         ((TextView) findViewById(R.id.name)).setText(favorite.getStopName());
 
         layout = (LinearLayout) findViewById(R.id.times);
-        times = new LinkedList<>();
 
         getSupportLoaderManager().restartLoader(0, PredictionsLoader.newBundle(favorite.getRouteId(), favorite.getStopId()), this);
     }
@@ -109,9 +109,9 @@ public class FavoriteActivity extends AppCompatActivity implements LoaderManager
                 view.setAnimation(animation);
                 TextView time = (TextView) view.findViewById(R.id.time);
                 if (prediction.isDelay()) {
-                    time.setText("Delayed");
+                    time.setText(R.string.delayed);
                 } else if (prediction.getPrdctdn().equals("DUE")) {
-                    time.setText("Due");
+                    time.setText(R.string.due);
                 } else {
                     time.setText(prediction.getPrdctdn() + " minutes");
                 }
@@ -122,7 +122,7 @@ public class FavoriteActivity extends AppCompatActivity implements LoaderManager
             View view = inflater.inflate(R.layout.item_prediction, null);
             view.setAnimation(animation);
             TextView time = (TextView) view.findViewById(R.id.time);
-            time.setText("No buses currently en route");
+            time.setText(R.string.no_buses);
             view.animate();
             layout.addView(view);
         }

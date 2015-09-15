@@ -40,9 +40,7 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Route item = adapter.getItem(position);
-                Intent intent = new Intent(getActivity(), MapActivity.class);
-                intent.putExtra("NUMBER", item.getNumber());
-                intent.putExtra("NAME", item.getName());
+                Intent intent = MapActivity.newIntent(getActivity(), item.getNumber(), item.getName());
                 startActivity(intent);
             }
         });

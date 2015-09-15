@@ -15,6 +15,8 @@ import com.connorhenke.mcts3000.fragments.RemoveDialogFragment;
 import com.connorhenke.mcts3000.fragments.RoutesFragment;
 import com.connorhenke.mcts3000.models.Favorite;
 import com.connorhenke.mcts3000.persistence.SQLiteOpenHelperImpl;
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends AppCompatActivity implements RemoveDialogFragment.FavoriteRemovedListener {
 
@@ -25,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements RemoveDialogFragm
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -55,9 +58,9 @@ public class MainActivity extends AppCompatActivity implements RemoveDialogFragm
         @Override
         public CharSequence getPageTitle(int position) {
             switch(position) {
-                case 0: return "Favorites";
-                case 1: return "Routes";
-                default: return "Routes";
+                case 0: return getString(R.string.title_favorites);
+                case 1: return getString(R.string.title_routes);
+                default: return getString(R.string.title_routes);
             }
         }
 

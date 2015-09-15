@@ -39,7 +39,7 @@
                 android:paddingRight="16dp"
                 android:paddingBottom="8dp"
                 android:textSize="24sp"
-                android:text="Buses arriving in:"/>
+                android:text="@string/buses_arriving_in"/>
 
             <LinearLayout
                 android:id="@+id/times"
