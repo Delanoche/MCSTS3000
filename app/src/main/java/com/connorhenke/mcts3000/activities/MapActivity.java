@@ -184,7 +184,11 @@ public class MapActivity extends AppCompatActivity {
 
         @Override
         public void onLoadFinished(Loader<List<Stop>> loader, List<Stop> data) {
-            displayStops(data);
+            if (data == null) {
+                Toast.makeText(MapActivity.this, "Could not load stops. Check network connection", Toast.LENGTH_SHORT).show();
+            } else {
+                displayStops(data);
+            }
         }
 
         @Override
@@ -202,13 +206,13 @@ public class MapActivity extends AppCompatActivity {
 
         @Override
         public void onLoadFinished(Loader<List<Bus>> loader, List<Bus> data) {
-            try {
                 map.clear();
                 vehicles.clear();
-                vehicles.addAll(data);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                if (data == null) {
+                    Toast.makeText(MapActivity.this, "Could not load locations. Check network connection", Toast.LENGTH_SHORT).show();
+                } else {
+                    vehicles.addAll(data);
+                }
             displayBuses();
         }
 
@@ -228,8 +232,10 @@ public class MapActivity extends AppCompatActivity {
         @Override
         public void onLoadFinished(Loader<List<Direction>> loader, List<Direction> data) {
             directions.clear();
-            for(Direction direction : data) {
-                directions.add(direction.getDir());
+            if (data != null) {
+                for (Direction direction : data) {
+                    directions.add(direction.getDir());
+                }
             }
         }
 

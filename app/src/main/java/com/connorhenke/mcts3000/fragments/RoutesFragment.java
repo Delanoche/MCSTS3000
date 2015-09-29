@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.connorhenke.mcts.R;
 import com.connorhenke.mcts3000.RoutesAdapter;
@@ -73,9 +74,13 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onLoadFinished(Loader<List<Route>> loader, List<Route> data) {
         adapter.clear();
-        adapter.addAll(data);
-        adapter.notifyDataSetChanged();
         hideProgressBar();
+        if (data == null) {
+            Toast.makeText(getActivity(), "Could not load routes. Check network connection", Toast.LENGTH_SHORT).show();
+        } else {
+            adapter.addAll(data);
+            adapter.notifyDataSetChanged();
+        }
     }
 
     @Override

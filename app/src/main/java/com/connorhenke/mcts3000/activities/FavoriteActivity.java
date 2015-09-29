@@ -28,6 +28,7 @@ import com.connorhenke.mcts3000.loaders.PredictionsLoader;
 import com.connorhenke.mcts3000.models.Favorite;
 import com.connorhenke.mcts3000.models.Prediction;
 import com.connorhenke.mcts3000.persistence.SQLiteOpenHelperImpl;
+import com.crashlytics.android.Crashlytics;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -96,35 +97,39 @@ public class FavoriteActivity extends AppCompatActivity implements LoaderManager
     public void onLoadFinished(Loader<List<Prediction>> loader, List<Prediction> data) {
         layout.removeAllViews();
         times.clear();
-        times.addAll(data);
-        LayoutInflater inflater = LayoutInflater.from(this);
+        if (data == null) {
+            Toast.makeText(this, "Could not load times. Check network connection", Toast.LENGTH_SHORT).show();
+        } else {
+            times.addAll(data);
+            LayoutInflater inflater = LayoutInflater.from(this);
 
-        Animation animation = new AlphaAnimation(0.0f, 1.0f);
-        animation.setDuration(250);
-        LayoutAnimationController animationController = new LayoutAnimationController(animation, 0.5f);
-        layout.setLayoutAnimation(animationController);
-        if (times.size() > 0) {
-            for (Prediction prediction : times) {
+            Animation animation = new AlphaAnimation(0.0f, 1.0f);
+            animation.setDuration(250);
+            LayoutAnimationController animationController = new LayoutAnimationController(animation, 0.5f);
+            layout.setLayoutAnimation(animationController);
+            if (times.size() > 0) {
+                for (Prediction prediction : times) {
+                    View view = inflater.inflate(R.layout.item_prediction, null);
+                    view.setAnimation(animation);
+                    TextView time = (TextView) view.findViewById(R.id.time);
+                    if (prediction.isDelay()) {
+                        time.setText(R.string.delayed);
+                    } else if (prediction.getPrdctdn().equals("DUE")) {
+                        time.setText(R.string.due);
+                    } else {
+                        time.setText(prediction.getPrdctdn() + " minutes");
+                    }
+                    view.animate();
+                    layout.addView(view);
+                }
+            } else {
                 View view = inflater.inflate(R.layout.item_prediction, null);
                 view.setAnimation(animation);
                 TextView time = (TextView) view.findViewById(R.id.time);
-                if (prediction.isDelay()) {
-                    time.setText(R.string.delayed);
-                } else if (prediction.getPrdctdn().equals("DUE")) {
-                    time.setText(R.string.due);
-                } else {
-                    time.setText(prediction.getPrdctdn() + " minutes");
-                }
+                time.setText(R.string.no_buses);
                 view.animate();
                 layout.addView(view);
             }
-        } else {
-            View view = inflater.inflate(R.layout.item_prediction, null);
-            view.setAnimation(animation);
-            TextView time = (TextView) view.findViewById(R.id.time);
-            time.setText(R.string.no_buses);
-            view.animate();
-            layout.addView(view);
         }
     }
 

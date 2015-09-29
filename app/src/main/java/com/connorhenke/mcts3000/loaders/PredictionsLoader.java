@@ -10,6 +10,7 @@ import com.connorhenke.mcts3000.models.Prediction;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PredictionsLoader extends AsyncTaskLoader<List<Prediction>> {
@@ -45,12 +46,14 @@ public class PredictionsLoader extends AsyncTaskLoader<List<Prediction>> {
 
     @Override
     public List<Prediction> loadInBackground() {
+        List<Prediction> predictions = new ArrayList<>();
         try {
-            List<Prediction> predictions = BaseService.getPredictions(route, stop);
+            predictions = BaseService.getPredictions(route, stop);
             return predictions;
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
+        } catch (JSONException e) {
+            return predictions;
+        } catch (IOException e) {
+            return null;
         }
-        return null;
     }
 }
