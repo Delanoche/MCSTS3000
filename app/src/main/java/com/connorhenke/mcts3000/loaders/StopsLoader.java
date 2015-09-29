@@ -10,6 +10,7 @@ import com.connorhenke.mcts3000.models.Stop;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class StopsLoader extends AsyncTaskLoader<List<Stop>> {
@@ -39,12 +40,14 @@ public class StopsLoader extends AsyncTaskLoader<List<Stop>> {
 
     @Override
     public List<Stop> loadInBackground() {
+        List<Stop> stops = new ArrayList<>();
         try {
-            List<Stop> stops = BaseService.getStops(route, dir);
+            stops = BaseService.getStops(route, dir);
             return stops;
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
+        } catch (JSONException e) {
+            return stops;
+        } catch (IOException e) {
+            return null;
         }
-        return null;
     }
 }

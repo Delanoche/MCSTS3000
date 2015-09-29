@@ -98,7 +98,7 @@ public class FavoriteActivity extends AppCompatActivity implements LoaderManager
         layout.removeAllViews();
         times.clear();
         if (data == null) {
-            Toast.makeText(this, "Could not load times. Check network connection", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Could not load times. Check network connection", Toast.LENGTH_LONG).show();
         } else {
             times.addAll(data);
             LayoutInflater inflater = LayoutInflater.from(this);

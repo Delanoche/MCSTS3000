@@ -9,6 +9,7 @@ import com.connorhenke.mcts3000.models.Route;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RoutesLoader extends AsyncTaskLoader<List<Route>> {
@@ -25,12 +26,14 @@ public class RoutesLoader extends AsyncTaskLoader<List<Route>> {
 
     @Override
     public List<Route> loadInBackground() {
+        List<Route> routes = new ArrayList<>();
         try {
-            List<Route> routes = BaseService.getRoutes();
+            routes = BaseService.getRoutes();
             return routes;
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
+        } catch (JSONException e) {
+            return routes;
+        } catch (IOException e) {
+            return null;
         }
-        return null;
     }
 }

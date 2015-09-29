@@ -10,6 +10,7 @@ import com.connorhenke.mcts3000.models.Direction;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DirectionsLoader extends AsyncTaskLoader<List<Direction>> {
@@ -31,12 +32,14 @@ public class DirectionsLoader extends AsyncTaskLoader<List<Direction>> {
 
     @Override
     public List<Direction> loadInBackground() {
+        List<Direction> directions = new ArrayList<>();
         try {
-            List<Direction> directions = BaseService.getDirections(route);
+            directions = BaseService.getDirections(route);
             return directions;
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
+        } catch (JSONException e) {
+            return directions;
+        } catch (IOException e) {
+            return null;
         }
-        return null;
     }
 }

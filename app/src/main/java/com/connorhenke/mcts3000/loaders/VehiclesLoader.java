@@ -10,6 +10,7 @@ import com.connorhenke.mcts3000.models.Bus;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class VehiclesLoader extends AsyncTaskLoader<List<Bus>> {
@@ -31,12 +32,14 @@ public class VehiclesLoader extends AsyncTaskLoader<List<Bus>> {
 
     @Override
     public List<Bus> loadInBackground() {
+        List<Bus> buses = new ArrayList<>();
         try {
-            List<Bus> buses = BaseService.getVehicles(route);
+            buses = BaseService.getVehicles(route);
             return buses;
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
+        } catch (JSONException e) {
+            return buses;
+        } catch (IOException e) {
+            return null;
         }
-        return null;
     }
 }

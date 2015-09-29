@@ -76,7 +76,7 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
         adapter.clear();
         hideProgressBar();
         if (data == null) {
-            Toast.makeText(getActivity(), "Could not load routes. Check network connection", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Could not load routes. Check network connection", Toast.LENGTH_LONG).show();
         } else {
             adapter.addAll(data);
             adapter.notifyDataSetChanged();

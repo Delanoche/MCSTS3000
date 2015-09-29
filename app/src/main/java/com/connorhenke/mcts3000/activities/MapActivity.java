@@ -185,7 +185,7 @@ public class MapActivity extends AppCompatActivity {
         @Override
         public void onLoadFinished(Loader<List<Stop>> loader, List<Stop> data) {
             if (data == null) {
-                Toast.makeText(MapActivity.this, "Could not load stops. Check network connection", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MapActivity.this, "Could not load stops. Check network connection", Toast.LENGTH_LONG).show();
             } else {
                 displayStops(data);
             }
@@ -209,9 +209,13 @@ public class MapActivity extends AppCompatActivity {
                 map.clear();
                 vehicles.clear();
                 if (data == null) {
-                    Toast.makeText(MapActivity.this, "Could not load locations. Check network connection", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MapActivity.this, "Could not load locations. Check network connection", Toast.LENGTH_LONG).show();
                 } else {
-                    vehicles.addAll(data);
+                    if (data.size() > 0) {
+                        vehicles.addAll(data);
+                    } else {
+                        Toast.makeText(MapActivity.this, "No buses are running for this route", Toast.LENGTH_LONG).show();
+                    }
                 }
             displayBuses();
         }
