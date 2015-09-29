@@ -23,8 +23,8 @@ android {
         applicationId "com.connorhenke.mcts3000"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 4
-        versionName "1.03"
+        versionCode 5
+        versionName "1.04"
     }
     buildTypes {
         release {
