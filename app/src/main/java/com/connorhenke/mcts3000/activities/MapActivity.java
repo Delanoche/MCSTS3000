@@ -16,11 +16,17 @@ import com.connorhenke.mcts3000.models.Favorite;
 import com.connorhenke.mcts3000.models.Prediction;
 import com.connorhenke.mcts3000.models.Stop;
 import com.connorhenke.mcts3000.persistence.SQLiteOpenHelperImpl;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -30,6 +36,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -44,7 +51,8 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.widget.Toast;
 
-public class MapActivity extends AppCompatActivity {
+public class MapActivity extends AppCompatActivity implements
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private GoogleMap map;
     private String route;
@@ -52,6 +60,9 @@ public class MapActivity extends AppCompatActivity {
     private String currentDirection;
     private List<Bus> vehicles;
     private HashMap<String, Stop> stops;
+    private GoogleApiClient googleApiClient;
+    private LocationRequest locationRequest;
+    private Marker person;
 
     private static final int DIRECTIONS = 0;
     private DirectionsLoaderListener directionsLoaderListener = new DirectionsLoaderListener();
@@ -79,6 +90,10 @@ public class MapActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        locationRequest = createLocationRequest();
+        buildGoogleApiClient();
+        googleApiClient.connect();
+
         route = getIntent().getStringExtra(ARG_NUMBER);
         setTitle(route);
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
@@ -104,6 +119,14 @@ public class MapActivity extends AppCompatActivity {
         getSupportLoaderManager().initLoader(VEHICLES, VehiclesLoader.newBundle(route), vehiclesLoaderListener).forceLoad();
     }
 
+    protected synchronized void buildGoogleApiClient() {
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
     private void refresh() {
         getSupportLoaderManager().restartLoader(DIRECTIONS, DirectionsLoader.newBundle(route), directionsLoaderListener).forceLoad();
         getSupportLoaderManager().restartLoader(VEHICLES, VehiclesLoader.newBundle(route), vehiclesLoaderListener).forceLoad();
@@ -119,6 +142,12 @@ public class MapActivity extends AppCompatActivity {
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.arrow))
                     .title(""));
         }
+        MarkerOptions markerOptions = new MarkerOptions();
+        Location location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+        if (location != null) {
+            markerOptions.position(new LatLng(location.getLatitude(), location.getLongitude()));
+            person = map.addMarker(markerOptions);
+        }
     }
 
     private void displayStops(List<Stop> stopList) {
@@ -132,6 +161,35 @@ public class MapActivity extends AppCompatActivity {
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.circledot))
                     .title(stop.getStopId()));
         }
+    }
+
+    private void findClosestStop() {
+        Location location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+        if (location != null && stops.size() > 0) {
+            Stop closest = null;
+            double closestDistance = Double.POSITIVE_INFINITY;
+            for(Stop stop : stops.values()) {
+                double temp = calculateDistance(location.getLatitude(), location.getLongitude(), stop.getLatitude(), stop.getLongitude());
+                if (closest == null || temp < closestDistance) {
+                    closest = stop;
+                    closestDistance = temp;
+                }
+            }
+            startActivity(FavoriteActivity.newIntent(MapActivity.this, new Favorite(closest.getStopId(), closest.getStopName(), route, currentDirection)));
+        } else if (stops.size() == 0) {
+            Toast.makeText(this, "Please select a direction", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Please turn on location services", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private double calculateDistance(double latitude, double longitude, double otherLatitude, double otherLongitude) {
+        double deltaLongitude = otherLongitude - longitude;
+        double deltaLatitude = otherLatitude - latitude;
+        double a = Math.pow(Math.sin(deltaLatitude/2), 2) + Math.cos(latitude) * Math.cos(otherLatitude) * Math.pow(Math.sin(deltaLongitude), 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        // 3691 is the radius of Earth in miles
+        return 3961 * c;
     }
 
     @Override
@@ -170,8 +228,70 @@ public class MapActivity extends AppCompatActivity {
                 dialog.show();
 
                 return true;
+            case R.id.get_closest:
+                findClosestStop();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        startLocationUpdates();
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopLocationUpdates();
+    }
+
+    protected void stopLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+    }
+
+    protected LocationRequest createLocationRequest() {
+        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        return mLocationRequest;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (googleApiClient.isConnected()) {
+            startLocationUpdates();
+        }
+    }
+
+    protected void startLocationUpdates() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        if (location != null) {
+            if (person == null) {
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(new LatLng(location.getLatitude(), location.getLongitude()));
+                person = map.addMarker(markerOptions);
+            } else {
+                person.setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
+            }
         }
     }
 
