@@ -20,6 +20,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Observable;
+import rx.Single;
+import rx.SingleSubscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
+
 public class BaseService {
 
     private static final OkHttpClient client = new OkHttpClient();
@@ -54,16 +61,35 @@ public class BaseService {
         return request(request);
     }
 
-    public static List<Route> getRoutes() throws IOException, JSONException {
-        Response response = request(ROUTES_ENDPOINT, "");
-        JSONObject object = new JSONObject(response.body().string());
-        JSONArray routes = object.getJSONObject(BUSTIME_RESPONSE).getJSONArray(ROUTES_OBJECT);
-        List<Route> result = new ArrayList<>();
-        for(int i = 0; i < routes.length(); i++) {
-            JSONObject route = routes.getJSONObject(i);
-            result.add(new Route(route.getString(Route.NUMBER), route.getString(Route.NAME), route.getString(Route.COLOR)));
+    public static Response request(Request request) throws IOException {
+        Log.d("Endpoint", request.urlString());
+        Response response = client.newCall(request).execute();
+        if (!response.isSuccessful()) {
+            Log.d("Error", "Response Code: " + response.code());
+            throw new IOException("Unexpected code " + response.body());
         }
-        return result;
+        return response;
+    }
+
+    public static Single<List<Route>> getRoutes() {
+        return Single.create(new Single.OnSubscribe<List<Route>>() {
+            @Override
+            public void call(SingleSubscriber<? super List<Route>> singleSubscriber) {
+                try {
+                    Response response = request(ROUTES_ENDPOINT, "");
+                    JSONObject object = new JSONObject(response.body().string());
+                    JSONArray routes = object.getJSONObject(BUSTIME_RESPONSE).getJSONArray(ROUTES_OBJECT);
+                    List<Route> result = new ArrayList<>();
+                    for (int i = 0; i < routes.length(); i++) {
+                        JSONObject route = routes.getJSONObject(i);
+                        result.add(new Route(route.getString(Route.NUMBER), route.getString(Route.NAME), route.getString(Route.COLOR)));
+                    }
+                    singleSubscriber.onSuccess(result);
+                } catch (IOException | JSONException e) {
+                    singleSubscriber.onError(e);
+                }
+            }
+        }).subscribeOn(Schedulers.io());
     }
 
     public static List<Bus> getVehicles(String route) throws IOException, JSONException {
@@ -120,14 +146,5 @@ public class BaseService {
         return result;
     }
 
-    public static Response request(Request request) throws IOException {
-        Log.d("Endpoint", request.urlString());
-        Response response = client.newCall(request).execute();
-        if (!response.isSuccessful()) {
-            Log.d("Error", "Response Code: " + response.code());
-            throw new IOException("Unexpected code " + response.body());
-        }
-        return response;
-    }
 }
 

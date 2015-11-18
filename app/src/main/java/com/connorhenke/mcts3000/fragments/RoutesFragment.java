@@ -4,29 +4,31 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.connorhenke.mcts.R;
+import com.connorhenke.mcts3000.BaseService;
 import com.connorhenke.mcts3000.RoutesAdapter;
 import com.connorhenke.mcts3000.activities.MapActivity;
-import com.connorhenke.mcts3000.loaders.RoutesLoader;
 import com.connorhenke.mcts3000.models.Route;
 
 import java.util.List;
 
-public class RoutesFragment extends Fragment implements LoaderManager.LoaderCallbacks<List<Route>> {
+import rx.SingleSubscriber;
+import rx.android.schedulers.AndroidSchedulers;
+
+public class RoutesFragment extends Fragment {
 
     private RoutesAdapter adapter;
     private ListView listView;
     private View progress;
+
+    private SingleSubscriber<List<Route>> subscriber;
 
     @Nullable
     @Override
@@ -51,40 +53,43 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
         }
         listView.setAdapter(adapter);
 
+        subscriber = subscribe();
+        BaseService.getRoutes()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
+
         return view;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        subscriber.unsubscribe();
+    }
+
+    private SingleSubscriber<List<Route>> subscribe() {
+        return new SingleSubscriber<List<Route>>() {
+            @Override
+            public void onSuccess(List<Route> data) {
+                adapter.clear();
+                hideProgressBar();
+                if (data == null) {
+                    Toast.makeText(getActivity(), R.string.could_not_load_routes, Toast.LENGTH_LONG).show();
+                } else {
+                    adapter.addAll(data);
+                    adapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onError(Throwable error) {
+                Toast.makeText(getActivity(), R.string.could_not_load_routes, Toast.LENGTH_LONG).show();
+            }
+        };
     }
 
     private void hideProgressBar() {
         progress.setVisibility(View.GONE);
         listView.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        getLoaderManager().restartLoader(0, null, this);
-    }
-
-    @Override
-    public Loader<List<Route>> onCreateLoader(int id, Bundle args) {
-        return new RoutesLoader(getActivity());
-    }
-
-    @Override
-    public void onLoadFinished(Loader<List<Route>> loader, List<Route> data) {
-        adapter.clear();
-        hideProgressBar();
-        if (data == null) {
-            Toast.makeText(getActivity(), "Could not load routes. Check network connection", Toast.LENGTH_LONG).show();
-        } else {
-            adapter.addAll(data);
-            adapter.notifyDataSetChanged();
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<List<Route>> loader) {
-        // Unused
     }
 }

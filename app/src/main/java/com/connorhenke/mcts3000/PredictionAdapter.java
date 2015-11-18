@@ -35,9 +35,9 @@ public class PredictionAdapter extends ArrayAdapter<Prediction> {
 
         Prediction prediction = getItem(position);
         if (prediction.isDelay()) {
-            holder.time.setText("Delayed");
+            holder.time.setText(R.string.delayed);
         } else if (prediction.getPrdctdn().equals("DUE")) {
-            holder.time.setText("Due");
+            holder.time.setText(R.string.due);
         } else {
             holder.time.setText(prediction.getPrdctdn());
         }
