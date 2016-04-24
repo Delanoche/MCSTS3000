@@ -3,9 +3,11 @@ package com.connorhenke.mcts3000.activities;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.connorhenke.mcts.R;
+import com.connorhenke.mcts3000.MarkerAnimation;
 import com.connorhenke.mcts3000.loaders.DirectionsLoader;
 import com.connorhenke.mcts3000.loaders.PredictionsLoader;
 import com.connorhenke.mcts3000.loaders.StopsLoader;
@@ -30,6 +32,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -38,10 +41,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.transition.Explode;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 public class MapActivity extends AppCompatActivity {
@@ -52,6 +57,8 @@ public class MapActivity extends AppCompatActivity {
     private String currentDirection;
     private List<Bus> vehicles;
     private HashMap<String, Stop> stops;
+    private List<Marker> stopMarkers;
+    private List<Marker> busMarkers;
 
     private static final int DIRECTIONS = 0;
     private DirectionsLoaderListener directionsLoaderListener = new DirectionsLoaderListener();
@@ -63,11 +70,13 @@ public class MapActivity extends AppCompatActivity {
 
     private static final String ARG_NUMBER = "number";
     private static final String ARG_NAME = "name";
+    private static final String ARG_COLOR = "color";
 
-    public static Intent newIntent(Context context, String number, String name) {
+    public static Intent newIntent(Context context, String number, String name, String color) {
         Intent intent = new Intent(context, MapActivity.class);
         intent.putExtra(ARG_NUMBER, number);
         intent.putExtra(ARG_NAME, name);
+        intent.putExtra(ARG_COLOR, color);
         return intent;
     }
 
@@ -80,6 +89,20 @@ public class MapActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         route = getIntent().getStringExtra(ARG_NUMBER);
+        String color = getIntent().getStringExtra(ARG_COLOR);
+        int bg = Color.parseColor(color);
+        toolbar.setBackgroundColor(bg);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            float[] hsv = new float[3];
+            Color.colorToHSV(bg, hsv);
+            hsv[1] = hsv[1] + 0.1f;
+            hsv[2] = hsv[2] - 0.1f;
+            int argbColor = Color.HSVToColor(hsv);
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(argbColor);
+        }
         setTitle(route);
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
         map.setOnMarkerClickListener(new OnMarkerClickListener() {
@@ -87,16 +110,19 @@ public class MapActivity extends AppCompatActivity {
             public boolean onMarkerClick(Marker marker) {
                 Stop stop = stops.get(marker.getTitle());
                 if (stop != null) {
-                    startActivity(FavoriteActivity.newIntent(MapActivity.this, new Favorite(stop.getStopId(), stop.getStopName(), route, currentDirection)));
+                    startActivity(PredictionListActivity.newIntent(MapActivity.this, new Favorite(stop.getStopId(), stop.getStopName(), route, currentDirection)));
                     return true;
                 }
                 return false;
             }
         });
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(43.038940, -87.906448), 12.0f));
 
         vehicles = new ArrayList<>();
         stops = new HashMap<>();
         directions = new ArrayList<>();
+        stopMarkers = new LinkedList<>();
+        busMarkers = new LinkedList<>();
 
         setTitle(route);
 
@@ -110,27 +136,35 @@ public class MapActivity extends AppCompatActivity {
     }
 
     private void displayBuses() {
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(43.038940, -87.906448), 12.0f));
+        for (Marker marker : busMarkers) {
+            marker.remove();
+        }
+        busMarkers.clear();
         for (Bus bus : vehicles) {
-            map.addMarker(new MarkerOptions()
+            Marker marker = map.addMarker(new MarkerOptions()
                     .flat(true)
                     .position(bus.getLocation())
                     .rotation(bus.getHeading())
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.arrow))
                     .title(""));
+            MarkerAnimation.animateMarkerIn(marker, MapActivity.this, R.drawable.arrow);
+            busMarkers.add(marker);
         }
     }
 
     private void displayStops(List<Stop> stopList) {
-        map.clear();
-        displayBuses();
+        for (Marker marker : stopMarkers) {
+            marker.remove();
+        }
+        stopMarkers.clear();
         for (Stop stop : stopList) {
             stops.put(stop.getStopId(), stop);
-            map.addMarker(new MarkerOptions()
+            Marker marker = map.addMarker(new MarkerOptions()
                     .flat(true)
                     .position(new LatLng(stop.getLatitude(), stop.getLongitude()))
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.circledot))
                     .title(stop.getStopId()));
+            stopMarkers.add(marker);
         }
     }
 
@@ -206,17 +240,16 @@ public class MapActivity extends AppCompatActivity {
 
         @Override
         public void onLoadFinished(Loader<List<Bus>> loader, List<Bus> data) {
-                map.clear();
-                vehicles.clear();
-                if (data == null) {
-                    Toast.makeText(MapActivity.this, "Could not load locations. Check network connection", Toast.LENGTH_LONG).show();
+            if (data == null) {
+                Toast.makeText(MapActivity.this, "Could not load locations. Check network connection", Toast.LENGTH_LONG).show();
+            } else {
+                if (data.size() > 0) {
+                    vehicles.clear();
+                    vehicles.addAll(data);
                 } else {
-                    if (data.size() > 0) {
-                        vehicles.addAll(data);
-                    } else {
-                        Toast.makeText(MapActivity.this, "No buses are running for this route", Toast.LENGTH_LONG).show();
-                    }
+                    Toast.makeText(MapActivity.this, "No buses are running for this route", Toast.LENGTH_LONG).show();
                 }
+            }
             displayBuses();
         }
 

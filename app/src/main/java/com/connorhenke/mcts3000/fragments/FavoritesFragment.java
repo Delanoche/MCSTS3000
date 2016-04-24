@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.connorhenke.mcts.R;
 import com.connorhenke.mcts3000.FavoritesAdapter;
 import com.connorhenke.mcts3000.activities.FavoriteActivity;
+import com.connorhenke.mcts3000.activities.PredictionListActivity;
 import com.connorhenke.mcts3000.loaders.FavoritesLoader;
 import com.connorhenke.mcts3000.loaders.RemoveFavoriteLoader;
 import com.connorhenke.mcts3000.models.Favorite;
@@ -66,7 +67,8 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Favorite item = adapter.getItem(position);
-                startActivity(FavoriteActivity.newIntent(getActivity(), item));
+//                startActivity(FavoriteActivity.newIntent(getActivity(), item));
+                startActivity(PredictionListActivity.newIntent(getActivity(), item));
             }
         });
 

@@ -35,8 +35,8 @@ public class FavoritesAdapter extends ArrayAdapter<Favorite> {
             holder = (ViewHolder) view.getTag();
         }
 
-        holder.route.setText(getItem(position).getRouteId() + " " + getItem(position).getDirection());
-        holder.name.setText(getItem(position).getStopName());
+        holder.name.setText(getItem(position).getDirection());
+        holder.route.setText(getItem(position).getStopName());
 
         return view;
     }

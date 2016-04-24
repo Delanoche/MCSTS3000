@@ -107,7 +107,12 @@ public class BaseService {
     }
 
     public static List<Prediction> getPredictions(String route, String stop) throws IOException, JSONException {
-        Response response = request(PREDICTIONS_ENDPOINT, "&rt=" + route + "&stpid=" + stop);
+        Response response;
+        if (route != null) {
+            response = request(PREDICTIONS_ENDPOINT, "&rt=" + route + "&stpid=" + stop);
+        } else {
+            response = request(PREDICTIONS_ENDPOINT, "&stpid=" + stop);
+        }
         JSONObject object = new JSONObject(response.body().string());
         JSONArray predictions = object.getJSONObject(BUSTIME_RESPONSE).getJSONArray(PREDICTIONS_OBJECT);
         List<Prediction> result = new ArrayList<>();

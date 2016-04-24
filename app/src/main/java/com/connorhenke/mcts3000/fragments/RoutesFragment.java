@@ -3,6 +3,8 @@ package com.connorhenke.mcts3000.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -41,8 +43,10 @@ public class RoutesFragment extends Fragment implements LoaderManager.LoaderCall
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Route item = adapter.getItem(position);
-                Intent intent = MapActivity.newIntent(getActivity(), item.getNumber(), item.getName());
-                startActivity(intent);
+                Intent intent = MapActivity.newIntent(getActivity(), item.getNumber(), item.getName(), item.getColor());
+                View viewStart = view.findViewById(R.id.color_block);
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), viewStart, getString(R.string.route_transition));
+                ActivityCompat.startActivity(getActivity(), intent, options.toBundle());
             }
         });
 

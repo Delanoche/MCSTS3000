@@ -33,6 +33,13 @@ public class PredictionsLoader extends AsyncTaskLoader<List<Prediction>> {
         return bundle;
     }
 
+    public static Bundle newBundle(String stop) {
+        Bundle bundle = new Bundle();
+        bundle.putString(ARG_ROUTE, null);
+        bundle.putString(ARG_STOP, stop);
+        return bundle;
+    }
+
     public PredictionsLoader(Context context, Bundle args) {
         super(context);
 

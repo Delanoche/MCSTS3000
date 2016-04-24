@@ -126,6 +126,10 @@ public class Prediction {
         this.prdctdn = prdctdn;
     }
 
+    public boolean isDue() {
+        return getPrdctdn().equals("DUE");
+    }
+
     public void loadJSON(JSONObject obj) throws JSONException {
         if (obj.has("delay"))
             setDelay(obj.getBoolean("delay"));
@@ -151,6 +155,8 @@ public class Prediction {
             setVid(obj.getString("vid"));
         if (obj.has("zone"))
             setZone(obj.getString("zone"));
+        if (obj.has("rtdir"))
+            setRouteDir(obj.getString("rtdir"));
 
     }
 }

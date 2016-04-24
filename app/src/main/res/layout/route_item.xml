@@ -9,6 +9,7 @@
         android:layout_gravity="center_vertical"
         android:gravity="center_vertical"
         android:id="@+id/color_block"
+        android:transitionName="@string/route_transition"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
         android:layout_width="32dp"
